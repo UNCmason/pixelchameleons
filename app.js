@@ -79,17 +79,25 @@ const heroThumbs = document.getElementById("heroThumbs");
 
 const HERO_IDS = [0, 7, 100, 333, 420, 555, 777, 998];
 
+/** Single clean label: #042 or #000 Genesis Bit — never double ids */
+function itemLabel(item) {
+  const id = `#${pad(item.id)}`;
+  if (!item.name || item.name.startsWith("CamoBit")) return id;
+  // strip any leading #123 / CamoBit #123 from special names
+  let name = String(item.name)
+    .replace(/^CamoBit\s*#?\d+\s*/i, "")
+    .replace(/^#\d+\s*/, "")
+    .trim();
+  if (!name || name === id) return id;
+  // if name is only the number again, skip it
+  if (name === String(item.id) || name === pad(item.id) || name === `#${pad(item.id)}`) return id;
+  return `${id} ${name}`;
+}
+
 function setHero(item) {
   heroGif.src = gifUrl(item.id);
   heroGif.alt = `${item.name} animated CamoBit`;
-  heroName.textContent = item.id < 10 || SPECIAL_NAMES[item.id]
-    ? `#${pad(item.id)} ${item.name.replace(/^CamoBit #\d+\s*/, "") || item.name}`
-    : `#${pad(item.id)}`;
-  if (item.name.startsWith("CamoBit")) {
-    heroName.textContent = `#${pad(item.id)}`;
-  } else {
-    heroName.textContent = `#${pad(item.id)} ${item.name}`;
-  }
+  heroName.textContent = itemLabel(item);
   heroTier.textContent = item.tier;
   heroTier.className = `tier ${tierClass(item.tier)}`;
   heroThumbs.querySelectorAll("button").forEach((b) => {
@@ -129,7 +137,7 @@ function buildGallery() {
     card.innerHTML = `
       <img src="${gifUrl(item.id)}" alt="${item.name}" loading="lazy" width="280" height="280" />
       <div class="g-meta">
-        <span class="id">#${pad(item.id)} ${item.name.startsWith("Pixel") ? "" : item.name}</span>
+        <span class="id">${itemLabel(item)}</span>
         <span class="sub">${item.note}</span>
         <span class="tier ${tierClass(item.tier)}">${item.tier}</span>
       </div>
