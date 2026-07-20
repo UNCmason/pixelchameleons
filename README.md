@@ -1,10 +1,11 @@
-# PixelChameleons — Collection Site
+# CamoBit — Collection Site
 
-One-page animated showcase for **999 pure-code 8-bit chameleon 1/1s**.
+One-page animated showcase for **999 pure-code 8-bit CamoBit 1/1s**.
 
 ## Live
 
-**https://pixelchameleons.vercel.app**
+**https://camobit.vercel.app**  
+(also: https://pixelchameleons.vercel.app)
 
 ## Local
 
