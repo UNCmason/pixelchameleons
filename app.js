@@ -1,7 +1,7 @@
 /* PixelChameleons site — gallery + pixel field */
 const IMG = "https://pixelchameleons.s3.filebase.io/images";
 
-/** Featured set: 1/1s + variety (IDs from locked generator) */
+/** Featured set for gallery + hero */
 const FEATURED = [
   { id: 0, name: "Genesis Cham", tier: "1/1 Legendary", tags: ["legendary", "gradient"], body: "Rainbow", note: "Gradient Void · Crystal · Holo" },
   { id: 1, name: "Prime Scale", tier: "1/1 Legendary", tags: ["legendary"], body: "Diamond", note: "Diamond Sky · Crystal floor" },
