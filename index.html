@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e0c" />
+  <meta name="description" content="PixelChameleons — 999 pure-code 8-bit chameleon 1/1s. Animated GIFs. No AI art. Rarity baked in the generator." />
+  <title>PixelChameleons · 999 Pure Code 1/1s</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://pixelchameleons.s3.filebase.io/site/styles.css" />
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+  <canvas id="px-field" aria-hidden="true"></canvas>
+
+  <header class="nav">
+    <a class="logo" href="#top">
+      <span class="logo-dot"></span>
+      PIXEL<span>CHAMELEONS</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#gallery">Gallery</a>
+      <a href="#origin">Origin</a>
+      <a href="#forge">The Forge</a>
+      <a href="#rarity">Rarity</a>
+      <a href="#traits">Traits</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow blink-cursor">PURE CODE · NO AI · 999 SUPPLY</p>
+        <h1>
+          <span class="line">Chameleons that</span>
+          <span class="line accent">change on purpose</span>
+        </h1>
+        <p class="lede">
+          Every PixelChameleon is a deterministic 8-bit creature painted by Python —
+          not a prompt, not a layer folder. Side-profile, one eye, slow blink,
+          habitat under its feet. Rarity is math baked into the pixels.
+        </p>
+        <div class="hero-cta">
+          <a class="btn primary" href="#gallery">Explore the 999</a>
+          <a class="btn ghost" href="#forge">How they’re made</a>
+        </div>
+        <ul class="stat-strip">
+          <li><strong>999</strong><span>1/1 GIFs</span></li>
+          <li><strong>72²</strong><span>pixel canvas</span></li>
+          <li><strong>4</strong><span>frame loop</span></li>
+          <li><strong>0</strong><span>AI images</span></li>
+        </ul>
+      </div>
+      <div class="hero-stage">
+        <div class="stage-glow"></div>
+        <div class="stage-frame">
+          <img id="heroGif" src="https://pixelchameleons.s3.filebase.io/images/000.gif" alt="Genesis Cham animated" width="360" height="360" />
+          <div class="stage-tag">
+            <span id="heroName">#000 Genesis Cham</span>
+            <span class="tier tier-legendary" id="heroTier">1/1 Legendary</span>
+          </div>
+        </div>
+        <div class="hero-thumbs" id="heroThumbs"></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section" id="gallery">
+      <div class="section-head">
+        <h2>Living gallery</h2>
+        <p>Animated GIFs live from the collection. Tap a card — it becomes the stage focus.</p>
+      </div>
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="legendary">1/1s</button>
+        <button class="chip" data-filter="laser">Lasers</button>
+        <button class="chip" data-filter="habitat">Habitat</button>
+        <button class="chip" data-filter="gradient">Gradients</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <p class="gallery-note">Showing featured chams · full set lives on Filebase IPFS gateway</p>
+    </section>
+
+    <!-- ORIGIN STORY -->
+    <section class="section story" id="origin">
+      <div class="section-head">
+        <h2>Why they exist</h2>
+        <p>Not a mint page. A habitat for code-born reptiles.</p>
+      </div>
+      <div class="story-grid">
+        <article class="story-card">
+          <div class="story-num">01</div>
+          <h3>One canvas. One law.</h3>
+          <p>
+            Each token is drawn on a <strong>72×72</strong> grid, nearest-neighbor
+            scaled to display size. Black 1px outlines. Side-profile so you always
+            see the turret eye — the chameleon signature.
+          </p>
+        </article>
+        <article class="story-card">
+          <div class="story-num">02</div>
+          <h3>No layers folder.</h3>
+          <p>
+            There is no Photoshop stack. <code>generate.py</code> paints ellipses,
+            tails, tongues, vines, and grounds with pure procedures. Same seed →
+            same cham. Forever.
+          </p>
+        </article>
+        <article class="story-card">
+          <div class="story-num">03</div>
+          <h3>They breathe slowly.</h3>
+          <p>
+            Four frames: open · blink · open · look. Biological eyes blink once.
+            Shades and lasers never double-blink — one eye, one cover, one beam.
+          </p>
+        </article>
+        <article class="story-card">
+          <div class="story-num">04</div>
+          <h3>Habitat, not hype props.</h3>
+          <p>
+            Grounds, plants, and extras are jungle-native: moss, lily pads, hanging
+            vines, crickets, dew. Rarity is in the weights — not random stickers.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- FORGE / HOW MADE -->
+    <section class="section forge" id="forge">
+      <div class="section-head">
+        <h2>The forge</h2>
+        <p>How a single cham becomes pixels — and why no two DNA strings match.</p>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-step" data-step="1">
+          <div class="pipe-icon">⌀</div>
+          <h3>Seed</h3>
+          <p><code>pixelchameleon_v6_…</code> + token id → MD5 → deterministic RNG. Re-run the generator; you get the same #042.</p>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-step="2">
+          <div class="pipe-icon">⬡</div>
+          <h3>Weighted roll</h3>
+          <p>Background, ground, plants, body, eyes, hat, mouth, extra. Low weight = scarcer. Gradients reserved for high stacks &amp; 1/1s.</p>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-step="3">
+          <div class="pipe-icon">▣</div>
+          <h3>Paint</h3>
+          <p>Sky (solid or vertical gradient) → habitat plants → ground → body &amp; spiral tail → 1px outline → face, hat, extras.</p>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-step="4">
+          <div class="pipe-icon">↻</div>
+          <h3>Animate</h3>
+          <p>Four frames, slow loop (~2.6s). Export GIF. Metadata scores rarity from inverse trait weights.</p>
+        </div>
+      </div>
+      <div class="code-panel">
+        <div class="code-tabs">
+          <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
+          <span class="code-title">generate.py · locked seed</span>
+        </div>
+        <pre class="code-block"><code><span class="c"># Rarity is not a sticker. It is the probability of the paint.</span>
+SEED_VERSION = <span class="s">"pixelchameleon_v6_clean_body_habitat"</span>
+TOTAL_SUPPLY = <span class="n">999</span>
+
+<span class="c"># Lower weight → rarer roll (e.g. Galaxy body = 1)</span>
+BODIES = [
+  (<span class="s">"Emerald"</span>, …, <span class="n">8</span>),
+  (<span class="s">"Galaxy"</span>,  …, <span class="n">1</span>),   <span class="c"># mythic paint</span>
+]
+
+<span class="k">def</span> <span class="f">trait_rarity_score</span>(traits):
+    score = <span class="n">0.0</span>
+    <span class="k">for</span> key <span class="k">in</span> TRAIT_KEYS:
+        w = WEIGHTS[key][traits[key]]
+        score += <span class="n">1.0</span> / w          <span class="c"># inverse weight sum</span>
+    <span class="k">return</span> score
+
+<span class="c"># 1/1 legendaries force god-roll DNA at fixed IDs</span>
+SPECIALS[<span class="n">0</span>] = <span class="s">"Genesis Cham"</span>   <span class="c"># Rainbow + Gradient Void + Halo</span>
+SPECIALS[<span class="n">998</span>] = <span class="s">"Final Form"</span>   <span class="c"># last token, still god-tier</span></code></pre>
+      </div>
+    </section>
+
+    <!-- RARITY -->
+    <section class="section rarity" id="rarity">
+      <div class="section-head">
+        <h2>Rarity is baked in</h2>
+        <p>Tiers come from the same weights that chose the pixels — not a post-hoc spreadsheet.</p>
+      </div>
+      <div class="tier-board">
+        <div class="tier-card t1">
+          <span class="tier-label">1/1 Legendary</span>
+          <strong>17 named</strong>
+          <p>Fixed IDs. Forced DNA. Genesis, Inferno King, Galaxy Drift, Final Form…</p>
+        </div>
+        <div class="tier-card t2">
+          <span class="tier-label">Mythic</span>
+          <strong>God stacks</strong>
+          <p>High inverse-weight sum. Often gradient skies + ultra body + rare eyes.</p>
+        </div>
+        <div class="tier-card t3">
+          <span class="tier-label">Legendary · Epic</span>
+          <strong>Heavy paints</strong>
+          <p>Lasers, crystal grounds, orchid vines, diamond crowns in the wild pool.</p>
+        </div>
+        <div class="tier-card t4">
+          <span class="tier-label">Rare · Uncommon</span>
+          <strong>Still 1/1</strong>
+          <p>Every DNA string is unique across all 999. No “common filler” art path.</p>
+        </div>
+      </div>
+      <div class="rarity-explain">
+        <h3>How a trait becomes rare in the image</h3>
+        <ol>
+          <li><strong>Weight table</strong> — e.g. <em>Hypno</em> eyes weight 1, <em>Normal</em> weight 10.</li>
+          <li><strong>Score</strong> — sum of 1/weight across background, ground, plants, body, eyes, hat, mouth, extra.</li>
+          <li><strong>Tier cut</strong> — thresholds map score → Mythic / Legendary / Epic / Rare / Uncommon.</li>
+          <li><strong>Visual flex</strong> — ultra scores can upgrade solid skies to <em>Gradient*</em> paints so rarities look different, not just labeled different.</li>
+          <li><strong>Collision guard</strong> — exact 8-trait combos re-roll until all 999 DNA strings are unique.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- TRAITS -->
+    <section class="section" id="traits">
+      <div class="section-head">
+        <h2>What can roll</h2>
+        <p>Eight slots. Habitat-first. No clothes glued to the body.</p>
+      </div>
+      <div class="trait-grid" id="traitGrid"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <div class="logo footer-logo"><span class="logo-dot"></span>PIXELCHAMELEONS</div>
+          <p>999 pure-code animated chameleons. Built for culture, not a mint button.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://pixelchameleons.s3.filebase.io/metadata/000.json" target="_blank" rel="noopener">Sample metadata</a>
+          <a href="https://pixelchameleons.s3.filebase.io/images/000.gif" target="_blank" rel="noopener">Sample GIF</a>
+          <a href="#top">Back to top</a>
+        </div>
+      </div>
+      <p class="copy">© PixelChameleons · procedural · seed locked · supply 999</p>
+    </footer>
+  </main>
+
+  <script src="https://pixelchameleons.s3.filebase.io/site/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# deploy / MCP scratch
+_*.*
+*.b64
+*_b64*
+*_part*.txt
+inject_*.txt
+file_*.json
+c_*
+payload_*
+deploy_*.json
+deploy_*.html
+deploy_app.js
+*_deploy*
+tool_input*.json
+full_deploy*
+compact_deploy*
+cdn_deploy*
+inline_deploy*
+redeploy*
+mcp_files*
+files_for_mcp*
+vercel_full*
+vercel_mcp*
+vercel_deploy*
+index_cdn.html
+__pycache__/
+.vercel/
