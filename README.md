@@ -4,20 +4,25 @@
 
 ## Live
 
-- **https://camobits.xyz** (primary)
-- https://camobit.vercel.app
+| URL | Notes |
+|-----|--------|
+| **https://camobits-site.vercel.app** | Full banner site + mint (production) |
+| **https://camobits.xyz** | Redirects to production |
+| **https://camobits-site.vercel.app/mint** | Standalone mint page |
+
+GitHub: [UNCmason/pixelchameleons](https://github.com/UNCmason/pixelchameleons)
 
 ## Features
 
-- Animated chameleon gradient background
-- Banner gallery (3:1 X header previews)
-- **Banner Lab** — search any token ID 0–4443, download PNG/SVG 1500×500 (no wallet)
-- **Mint** — diamond contract on Robinhood Chain (4663), ~$0.70, pay-as-you-mint
+- Animated chameleon gradient background (slow color morph)
+- Banner gallery with many CamoBits in **3:1 X header** previews
+- **Banner Lab** — search token ID 0–4443, download PNG/SVG 1500×500 (no wallet)
+- **Mint** — diamond on Robinhood Chain (4663), ~$0.70, pay-as-you-mint
 
 ## Contract
 
 - Diamond: `0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD`
-- Chain ID: `4663`
+- Chain ID: `4663` (Robinhood Chain)
 - Treasury: `0x76B2c9Dfd8DCe539A6e009c0B5283c44e2D45421`
 - Supply: `4444`
 
