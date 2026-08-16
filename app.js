@@ -71,8 +71,8 @@ function irisColor(id) {
 }
 
 /**
- * Stretched wide CamoBit (you liked this) — coords fit inside 1500×500 with padding.
- * Drawn in local 0..1400 x 0..420 space, then placed with margin.
+ * Wide CamoBit for 1500×500 — tail curls UP like a real chameleon (tight spiral),
+ * not stretched out the left edge. Body fills the banner length cleanly.
  */
 function bannerCreatureWide(id) {
   const body = bodyColor(id);
@@ -80,106 +80,99 @@ function bannerCreatureWide(id) {
   const iris = irisColor(id);
   const outline = "#0a120c";
   return `
-  <!-- habitat ground -->
+  <!-- habitat ground full local width -->
   <rect x="0" y="360" width="1400" height="60" fill="#2d6b2a"/>
   <rect x="0" y="360" width="1400" height="8" fill="#3d8c3a"/>
-  <ellipse cx="180" cy="364" rx="70" ry="10" fill="#4a9e45" opacity="0.65"/>
-  <ellipse cx="640" cy="366" rx="100" ry="9" fill="#4a9e45" opacity="0.5"/>
-  <ellipse cx="1100" cy="365" rx="80" ry="10" fill="#4a9e45" opacity="0.55"/>
+  <ellipse cx="220" cy="364" rx="70" ry="10" fill="#4a9e45" opacity="0.65"/>
+  <ellipse cx="700" cy="366" rx="100" ry="9" fill="#4a9e45" opacity="0.5"/>
+  <ellipse cx="1150" cy="365" rx="80" ry="10" fill="#4a9e45" opacity="0.55"/>
 
-  <!-- curling tail (left) -->
+  <!-- tail: tight chameleon curl UP under/behind body (stays inside frame) -->
   <path d="
-    M 640 290
-    C 500 310, 430 270, 370 250
-    C 300 225, 250 270, 200 305
-    C 150 340, 100 320, 75 270
-    C 55 230, 90 195, 130 210
-    C 160 222, 148 255, 115 260
-    C 90 264, 82 245, 100 232
-  " fill="none" stroke="${outline}" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+    M 520 300
+    C 470 320, 430 335, 400 320
+    C 365 300, 375 255, 410 240
+    C 445 225, 480 250, 470 280
+    C 462 300, 435 305, 420 290
+    C 408 278, 418 262, 435 268
+  " fill="none" stroke="${outline}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="
-    M 640 290
-    C 500 310, 430 270, 370 250
-    C 300 225, 250 270, 200 305
-    C 150 340, 100 320, 75 270
-    C 55 230, 90 195, 130 210
-    C 160 222, 148 255, 115 260
-    C 90 264, 82 245, 100 232
-  " fill="none" stroke="${body}" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+    M 520 300
+    C 470 320, 430 335, 400 320
+    C 365 300, 375 255, 410 240
+    C 445 225, 480 250, 470 280
+    C 462 300, 435 305, 420 290
+    C 408 278, 418 262, 435 268
+  " fill="none" stroke="${body}" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- body (wide, but stays inside frame) -->
-  <ellipse cx="700" cy="275" rx="170" ry="82" fill="${outline}"/>
-  <ellipse cx="700" cy="275" rx="160" ry="74" fill="${body}"/>
-  <ellipse cx="720" cy="292" rx="120" ry="40" fill="${belly}" opacity="0.42"/>
+  <!-- elongated body -->
+  <ellipse cx="720" cy="275" rx="175" ry="80" fill="${outline}"/>
+  <ellipse cx="720" cy="275" rx="165" ry="72" fill="${body}"/>
+  <ellipse cx="740" cy="292" rx="120" ry="38" fill="${belly}" opacity="0.42"/>
 
   <!-- neck -->
-  <ellipse cx="860" cy="250" rx="95" ry="68" fill="${outline}"/>
-  <ellipse cx="860" cy="250" rx="86" ry="60" fill="${body}"/>
+  <ellipse cx="890" cy="250" rx="92" ry="66" fill="${outline}"/>
+  <ellipse cx="890" cy="250" rx="84" ry="58" fill="${body}"/>
 
   <!-- head -->
-  <ellipse cx="990" cy="220" rx="82" ry="76" fill="${outline}"/>
-  <ellipse cx="990" cy="220" rx="74" ry="68" fill="${body}"/>
+  <ellipse cx="1020" cy="220" rx="80" ry="74" fill="${outline}"/>
+  <ellipse cx="1020" cy="220" rx="72" ry="66" fill="${body}"/>
 
-  <path d="M 560 230 Q 700 185 860 195 Q 930 182 1000 192" fill="none"
+  <path d="M 580 232 Q 720 188 890 196 Q 960 184 1030 194" fill="none"
         stroke="${outline}" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
 
   <!-- eye -->
-  <circle cx="1030" cy="210" r="40" fill="${iris}" stroke="${outline}" stroke-width="7"/>
-  <circle cx="1042" cy="210" r="18" fill="#111"/>
-  <circle cx="1052" cy="200" r="7" fill="#fff"/>
+  <circle cx="1060" cy="210" r="38" fill="${iris}" stroke="${outline}" stroke-width="7"/>
+  <circle cx="1072" cy="210" r="17" fill="#111"/>
+  <circle cx="1082" cy="200" r="6.5" fill="#fff"/>
 
-  <path d="M 1045 248 Q 1065 260 1040 268" fill="none" stroke="${outline}" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+  <path d="M 1075 248 Q 1095 260 1070 268" fill="none" stroke="${outline}" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
 
   <!-- legs -->
-  <rect x="575" y="335" width="16" height="42" rx="5" fill="${outline}"/>
-  <rect x="577" y="337" width="12" height="38" rx="4" fill="${body}"/>
-  <rect x="645" y="338" width="16" height="40" rx="5" fill="${outline}"/>
-  <rect x="647" y="340" width="12" height="36" rx="4" fill="${body}"/>
-  <rect x="770" y="336" width="16" height="42" rx="5" fill="${outline}"/>
-  <rect x="772" y="338" width="12" height="38" rx="4" fill="${body}"/>
-  <rect x="840" y="338" width="16" height="40" rx="5" fill="${outline}"/>
-  <rect x="842" y="340" width="12" height="36" rx="4" fill="${body}"/>
-  <ellipse cx="583" cy="380" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="653" cy="381" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="778" cy="380" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="848" cy="381" rx="14" ry="6" fill="${outline}"/>
+  <rect x="600" y="335" width="16" height="42" rx="5" fill="${outline}"/>
+  <rect x="602" y="337" width="12" height="38" rx="4" fill="${body}"/>
+  <rect x="670" y="338" width="16" height="40" rx="5" fill="${outline}"/>
+  <rect x="672" y="340" width="12" height="36" rx="4" fill="${body}"/>
+  <rect x="800" y="336" width="16" height="42" rx="5" fill="${outline}"/>
+  <rect x="802" y="338" width="12" height="38" rx="4" fill="${body}"/>
+  <rect x="870" y="338" width="16" height="40" rx="5" fill="${outline}"/>
+  <rect x="872" y="340" width="12" height="36" rx="4" fill="${body}"/>
+  <ellipse cx="608" cy="380" rx="14" ry="6" fill="${outline}"/>
+  <ellipse cx="678" cy="381" rx="14" ry="6" fill="${outline}"/>
+  <ellipse cx="808" cy="380" rx="14" ry="6" fill="${outline}"/>
+  <ellipse cx="878" cy="381" rx="14" ry="6" fill="${outline}"/>
 `;
 }
 
 /**
- * Robinhood app-style logo mark (mint feather + white up-arrow).
- * Larger bottom-right brand stamp.
+ * Robinhood chain mark: bold dark bird-feather on Hood green (#CDFF00).
  */
 function robinhoodLogo(x, y, size = 56) {
   const s = size / 48;
   return `
   <g transform="translate(${x},${y}) scale(${s})">
-    <!-- rounded tile like the app icon -->
-    <rect x="0" y="0" width="48" height="48" rx="11" fill="#00C805"/>
-    <!-- white feather / brand glyph -->
-    <path fill="#ffffff" d="
-      M24 7
-      C17.2 14.8 14 21.5 14 28.2
-      c0 2.6.8 4.8 2.2 6.4
-      C18.4 32.2 20.8 29 24 25.2
-      c3.2 3.8 5.6 7 7.8 9.4
-      C33.2 33 34 30.8 34 28.2
-      C34 21.5 30.8 14.8 24 7Z"/>
-    <!-- classic up-arrow (brand) -->
-    <path fill="#00C805" d="
-      M24 16
-      L30.5 27.5
-      H27
-      V34
-      H21
-      V27.5
-      H17.5
-      Z"/>
+    <rect x="0" y="0" width="48" height="48" rx="10" fill="#CDFF00"/>
+    <!-- single bold dark feather (birdlike, not a leaf) -->
+    <path fill="#0a0c08" d="
+      M24.5 6
+      C19 14 16.5 20 16 27
+      c-0.3 4 0.8 7.5 3 10
+      c1.5-2.2 3.2-4.8 4.8-8.2
+      c0.4 0.1 0.8 0.1 1.2 0
+      c1.6 3.4 3.3 6 4.8 8.2
+      c2.2-2.5 3.3-6 3-10
+      C32.3 20 29.8 14 24.5 6Z"/>
+    <!-- quill shaft -->
+    <path d="M24.5 12 L24.5 38" stroke="#0a0c08" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <!-- barb ticks (feather, not leaf veins) -->
+    <path d="M24.5 16 L19 20 M24.5 20 L18.5 25 M24.5 24 L19 30
+             M24.5 16 L30 20 M24.5 20 L30.5 25 M24.5 24 L30 30"
+          stroke="#0a0c08" stroke-width="1.6" stroke-linecap="round" fill="none"/>
   </g>`;
 }
 
 /**
- * X header 1500×500 — stretched CamoBit fitted inside the banner box + RH logo.
+ * X header 1500×500 — wide CamoBit + RH feather on hood green.
  */
 function bannerSvg(id) {
   const bg = bgColor(id);
@@ -188,8 +181,6 @@ function bannerSvg(id) {
   const a2 = accentColor(id + 17);
   const a3 = bodyColor(id + 3);
   const uid = `b${id}`;
-
-  // art is 1400×420; center in 1500×500 with equal pad (~50px)
   const padX = 50;
   const padY = 40;
 
@@ -216,7 +207,7 @@ function bannerSvg(id) {
       <stop offset="100%" stop-color="#000" stop-opacity="0.18"/>
     </linearGradient>
     <filter id="${uid}f"><feGaussianBlur stdDeviation="36"/></filter>
-    <clipPath id="${uid}clip"><rect width="1500" height="500" rx="0"/></clipPath>
+    <clipPath id="${uid}clip"><rect width="1500" height="500"/></clipPath>
   </defs>
 
   <g clip-path="url(#${uid}clip)">
@@ -225,16 +216,13 @@ function bannerSvg(id) {
     <circle cx="980" cy="50" r="150" fill="${body}" opacity="0.12" filter="url(#${uid}f)"/>
     <circle cx="1320" cy="200" r="200" fill="#CDFF00" opacity="0.1" filter="url(#${uid}f)"/>
     <rect width="1500" height="500" fill="url(#${uid}v)"/>
-
-    <!-- stretched CamoBit, padded so it never leaves the banner box -->
     <g transform="translate(${padX},${padY})">
       ${bannerCreatureWide(id)}
     </g>
   </g>
 
-  <!-- Robinhood logo (app-style tile) + token id -->
-  ${robinhoodLogo(1418, 422, 58)}
-  <text x="1405" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.4"
+  ${robinhoodLogo(1416, 420, 60)}
+  <text x="1400" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.4"
         font-family="ui-monospace,monospace" font-size="14" font-weight="700">#${id}</text>
 </svg>`;
 }
@@ -316,7 +304,8 @@ function initChameleonBg() {
 function buildFeatured() {
   const el = document.getElementById("bannerStrip");
   if (!el) return;
-  const ids = [0, 7, 42, 100, 333, 420, 777, 1111, 2222, 3333, 4200, 4443];
+  // keep strip light — a few previews only
+  const ids = [0, 333, 777];
   el.innerHTML = "";
   ids.forEach((id) => {
     const card = document.createElement("div");
@@ -329,7 +318,7 @@ function buildFeatured() {
 function initHeroRotate() {
   const hero = document.getElementById("heroBanner");
   if (!hero) return;
-  const ids = [0, 42, 333, 777, 1111, 4443];
+  const ids = [0, 1, 333, 777];
   let i = 0;
   const tick = () => {
     hero.src = svgToDataUrl(bannerSvg(ids[i % ids.length]));
@@ -616,9 +605,11 @@ function boot() {
     }
   });
 
-  document.querySelectorAll("[data-contract]").forEach((a) => {
-    a.href = `${EXPLORER}/address/${CONTRACT}`;
-    a.textContent = "0x4314…F3AD";
+  // OpenSea collection / token deep-link
+  const os = `https://opensea.io/assets/robinhood/${CONTRACT}/0`;
+  ["openseaNav", "openseaHero", "openseaFoot"].forEach((id) => {
+    const a = document.getElementById(id);
+    if (a) a.href = os;
   });
 }
 

@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0e0c" />
-  <meta name="description" content="CamoBits — 4444 X banners on Robinhood Chain. $0.70 mint · 5% royalty." />
+  <meta name="description" content="CamoBits — 4444 X banners on Robinhood Chain. $0.70 mint." />
   <link rel="canonical" href="https://camobits.xyz/" />
   <title>CamoBits</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -25,19 +25,21 @@
     <nav class="nav-links">
       <a href="#mint">Mint</a>
       <a href="#lab">My banner</a>
+      <a id="openseaNav" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero">
       <h1><span class="accent">X banners.</span> Not PFPs.</h1>
-      <p class="sub">4444 · Robinhood · $0.70 · 5% royalty</p>
+      <p class="sub">4444 · Robinhood · $0.70</p>
       <div class="hero-banner-frame">
         <img id="heroBanner" alt="" width="1500" height="500" />
       </div>
       <div class="hero-cta">
         <a class="btn primary" href="#mint">Mint</a>
         <a class="btn ghost" href="#lab">My banner</a>
+        <a class="btn ghost" id="openseaHero" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
       </div>
     </section>
 
@@ -49,7 +51,7 @@
       <h2>My banner</h2>
       <div class="lab-box" id="labBox">
         <div class="lab-locked" id="labLocked">
-          <p>Connect after mint. Only <strong>your</strong> CamoBits.</p>
+          <p>Connect to size <strong>your</strong> CamoBits.</p>
           <button type="button" class="btn secondary" id="btnConnectLab">Connect</button>
         </div>
         <div class="lab-open hidden" id="labOpen">
@@ -61,7 +63,7 @@
           <p class="banner-label" id="bannerLabel"></p>
           <div class="banner-preview-frame empty" id="previewFrame">
             <img id="bannerPreview" alt="" width="1500" height="500" />
-            <p class="empty-msg" id="emptyMsg">No CamoBits in this wallet yet.</p>
+            <p class="empty-msg" id="emptyMsg">No CamoBits yet.</p>
           </div>
         </div>
       </div>
@@ -81,20 +83,15 @@
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
         <p class="mint-msg" id="mintMsg"></p>
-        <p class="hint">EVM wallet only · MetaMask / Rabby / Coinbase · not Phantom</p>
-        <p class="hint mono"><a data-contract href="#" target="_blank" rel="noopener">contract</a> · 5% secondary royalty → treasury</p>
       </div>
     </section>
 
     <footer class="footer">
       <span class="logo">CAMO<span>BITS</span></span>
-      <span class="footer-right">
-        <a href="https://camobits.xyz">camobits.xyz</a>
-        <a data-contract href="#" target="_blank" rel="noopener">Contract</a>
-      </span>
+      <a id="openseaFoot" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
     </footer>
   </main>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
