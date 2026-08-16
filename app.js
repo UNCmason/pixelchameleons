@@ -1,4 +1,4 @@
-/* CamoBits — banner project site + mint + banner lab */
+/* CamoBits — minimal site, owner-only banners, chameleon bg */
 const CONTRACT = "0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD";
 const CHAIN_ID = 4663n;
 const CHAIN_HEX = "0x1237";
@@ -12,13 +12,14 @@ const ABI = [
   "function mint(uint256 quantity) payable",
   "function mintPriceWei() view returns (uint256)",
   "function totalMinted() view returns (uint256)",
-  "function totalSupply() view returns (uint256)",
-  "function treasury() view returns (address)",
-  "function tokenURI(uint256) view returns (string)",
+  "function balanceOf(address) view returns (uint256)",
   "function ownerOf(uint256) view returns (address)",
 ];
 
-/* ---------- Deterministic art ---------- */
+let provider, signer, contract;
+let ownedIds = [];
+let walletAddr = "";
+
 function rng(tokenId, salt) {
   let h = 2166136261 >>> 0;
   const s = `camobits_v7_rh_green_4444|${tokenId}|${salt}`;
@@ -46,7 +47,7 @@ function bgColor(id) {
 }
 
 function accentColor(id) {
-  const colors = ["#00C805", "#32c864", "#ff64a0", "#32d2e6", "#f0be28", "#b478ff", "#CDFF00"];
+  const colors = ["#00C805", "#32c864", "#ff64a0", "#32d2e6", "#f0be28", "#b478ff", "#CDFF00", "#965ad2"];
   return colors[rng(id, 9) % colors.length];
 }
 
@@ -59,10 +60,10 @@ function nameOf(id) {
     1111: "Quad One", 2222: "Double Angel", 3333: "Triple Inferno",
     4200: "Mega Leaf", 4443: "Final Form",
   };
-  return specials[id] || `CamoBit #${id}`;
+  return specials[id] || `#${id}`;
 }
 
-/** Square SVG art (on-chain style) */
+/** Creature only (no outer svg) — drawn at native 72 grid */
 function tokenSvgInner(id) {
   const bg = bgColor(id);
   const body = bodyColor(id);
@@ -85,101 +86,77 @@ function tokenSvgInner(id) {
 `;
 }
 
-function tokenSvg(id, size = 72) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="${size}" height="${size}" shape-rendering="crispEdges">${tokenSvgInner(id)}</svg>`;
-}
-
-/** X/Twitter banner 1500×500 — full-bleed, safe-zone friendly */
+/**
+ * True X header 1500×500 — full-bleed chameleon gradient + creature as art
+ * (not a stretched square sticker)
+ */
 function bannerSvg(id) {
   const bg = bgColor(id);
   const body = bodyColor(id);
-  const accent = accentColor(id);
-  const name = nameOf(id);
-  const pattern = rng(id, 11) % 3;
-  const secondId = (id + 777) % MAX;
-  const thirdId = (id + 1337) % MAX;
+  const a1 = accentColor(id);
+  const a2 = accentColor(id + 17);
+  const a3 = bodyColor(id + 3);
+  const uid = `b${id}`;
 
-  // layout: big bit left (safe from avatar crop), smaller bits trailing right
+  // creature sits left-center in safe zone; rest is pure shifting gradient field
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${BANNER_W}" height="${BANNER_H}" viewBox="0 0 ${BANNER_W} ${BANNER_H}">
   <defs>
-    <linearGradient id="g${id}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${bg}"/>
-      <stop offset="28%" stop-color="${accent}"/>
-      <stop offset="62%" stop-color="${body}"/>
-      <stop offset="100%" stop-color="#0d1a12"/>
+    <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${bg}">
+        <animate attributeName="stop-color" values="${bg};${a1};${a2};${body};${bg}" dur="14s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="40%" stop-color="${a1}">
+        <animate attributeName="stop-color" values="${a1};${a2};${bg};${a3};${a1}" dur="16s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="75%" stop-color="${a2}">
+        <animate attributeName="stop-color" values="${a2};${body};${a1};${bg};${a2}" dur="18s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="${a3}">
+        <animate attributeName="stop-color" values="${a3};${bg};${a1};${a2};${a3}" dur="15s" repeatCount="indefinite"/>
+      </stop>
     </linearGradient>
-    <linearGradient id="sh${id}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000" stop-opacity="0.28"/>
-    </linearGradient>
-    <filter id="soft${id}"><feGaussianBlur stdDeviation="18"/></filter>
-    <pattern id="px${id}" width="24" height="24" patternUnits="userSpaceOnUse">
-      <rect width="24" height="24" fill="none"/>
-      <rect width="2" height="2" fill="#000" opacity="0.06"/>
-    </pattern>
+    <radialGradient id="${uid}r" cx="30%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="${body}" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="${body}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="${uid}r2" cx="85%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#CDFF00" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#CDFF00" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="${uid}f"><feGaussianBlur stdDeviation="28"/></filter>
   </defs>
-  <rect width="100%" height="100%" fill="url(#g${id})"/>
-  ${pattern === 1 ? `<rect width="100%" height="100%" fill="url(#px${id})"/>` : ""}
-  <circle cx="180" cy="90" r="200" fill="${body}" opacity="0.14" filter="url(#soft${id})"/>
-  <circle cx="1280" cy="420" r="240" fill="#CDFF00" opacity="0.1" filter="url(#soft${id})"/>
-  <circle cx="900" cy="80" r="120" fill="${accent}" opacity="0.1" filter="url(#soft${id})"/>
-  <rect width="100%" height="100%" fill="url(#sh${id})"/>
-
-  <!-- primary CamoBit (left third — clear of X avatar mask) -->
-  <g transform="translate(90,55) scale(5.4)" shape-rendering="crispEdges">
+  <rect width="100%" height="100%" fill="url(#${uid}g)"/>
+  <circle cx="420" cy="250" r="280" fill="url(#${uid}r)" filter="url(#${uid}f)"/>
+  <circle cx="1280" cy="120" r="220" fill="url(#${uid}r2)" filter="url(#${uid}f)"/>
+  <circle cx="1100" cy="420" r="160" fill="${a2}" opacity="0.12" filter="url(#${uid}f)"/>
+  <!-- creature: large, left third, crisp pixels -->
+  <g transform="translate(120,55) scale(5.4)" shape-rendering="crispEdges">
     ${tokenSvgInner(id)}
   </g>
-
-  <!-- supporting bits mid-right for "collection of banners" feel -->
-  <g transform="translate(980,70) scale(2.4)" opacity="0.92" shape-rendering="crispEdges">
-    ${tokenSvgInner(secondId)}
-  </g>
-  <g transform="translate(1200,220) scale(2.0)" opacity="0.78" shape-rendering="crispEdges">
-    ${tokenSvgInner(thirdId)}
-  </g>
-
-  <!-- label block -->
-  <rect x="680" y="155" width="12" height="120" rx="4" fill="#0a0c08" opacity="0.35"/>
-  <text x="710" y="200" fill="#0a0c08" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="48" font-weight="700">${escapeXml(name)}</text>
-  <text x="710" y="250" fill="#0a0c08" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="26" opacity="0.78">CamoBits · #${id} · Robinhood</text>
-  <text x="710" y="295" fill="#0a0c08" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="20" opacity="0.55">1500×500 · X / Twitter banner</text>
-  <rect x="710" y="325" width="200" height="7" rx="3.5" fill="#0a0c08" opacity="0.3"/>
+  <!-- tiny id only — no wall of text -->
+  <text x="1450" y="470" text-anchor="end" fill="#0a0c08" fill-opacity="0.35"
+        font-family="ui-monospace,monospace" font-size="18" font-weight="600">#${id}</text>
 </svg>`;
-}
-
-function escapeXml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function svgToDataUrl(svg) {
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
-/* ---------- Chameleon gradient canvas (slow color morph) ---------- */
+/* ---------- Chameleon canvas (extra fluid layer) ---------- */
 function initChameleonBg() {
   const c = document.getElementById("bg-canvas");
   if (!c) return;
-  const ctx = c.getContext("2d", { alpha: false });
-  let w = 0;
-  let h = 0;
+  const ctx = c.getContext("2d", { alpha: true });
+  let w = 0, h = 0;
   const t0 = performance.now();
-  // chameleon palette — hood yellow → greens → teal → pink → gold
   const colors = [
+    [205, 255, 0], [0, 200, 5], [50, 200, 100], [40, 170, 160],
+    [70, 140, 220], [180, 90, 210], [255, 100, 160], [240, 190, 40],
     [205, 255, 0],
-    [0, 200, 5],
-    [50, 200, 100],
-    [40, 170, 160],
-    [70, 140, 220],
-    [180, 90, 210],
-    [255, 100, 160],
-    [240, 190, 40],
   ];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -200,168 +177,70 @@ function initChameleonBg() {
     ];
   }
 
-  function sample(t, offset) {
-    const x = t + offset;
-    const i = Math.floor(x) % colors.length;
+  function sample(t, off) {
+    const x = t + off;
+    const i = ((Math.floor(x) % colors.length) + colors.length) % colors.length;
     const j = (i + 1) % colors.length;
     const f = x - Math.floor(x);
-    // smoothstep for softer chameleon blend
     const s = f * f * (3 - 2 * f);
-    return mix(colors[i < 0 ? i + colors.length : i], colors[j], s);
+    return mix(colors[i], colors[j], s);
   }
 
   function frame(now) {
-    const t = reduceMotion ? 0.3 : (now - t0) / 14000; // ~14s per hue step
-    const c1 = sample(t, 0);
-    const c2 = sample(t, 1.7);
-    const c3 = sample(t, 3.4);
-    const c4 = sample(t, 5.1);
+    const t = reduce ? 0.4 : (now - t0) / 11000;
+    const ang = reduce ? 0.5 : (now - t0) / 20000;
+    ctx.clearRect(0, 0, w, h);
 
-    // drifting multi-stop gradient (angle slowly rotates)
-    const ang = reduceMotion ? 0.6 : (now - t0) / 28000;
-    const cx = w * (0.5 + 0.25 * Math.sin(ang));
-    const cy = h * (0.45 + 0.2 * Math.cos(ang * 0.8));
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.95);
-    g.addColorStop(0, `rgb(${c1.join(",")})`);
-    g.addColorStop(0.35, `rgb(${c2.join(",")})`);
-    g.addColorStop(0.7, `rgb(${c3.join(",")})`);
-    g.addColorStop(1, `rgb(${c4.join(",")})`);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+    // multiple drifting orbs
+    for (let k = 0; k < 5; k++) {
+      const col = sample(t, k * 1.3);
+      const cx = w * (0.5 + 0.35 * Math.sin(ang * (0.7 + k * 0.2) + k));
+      const cy = h * (0.5 + 0.3 * Math.cos(ang * (0.9 + k * 0.15) + k * 1.2));
+      const r = Math.max(w, h) * (0.25 + 0.08 * k);
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, `rgba(${col.join(",")},0.55)`);
+      g.addColorStop(0.55, `rgba(${col.join(",")},0.12)`);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
 
-    // secondary diagonal wash
-    const g2 = ctx.createLinearGradient(0, 0, w, h);
-    g2.addColorStop(0, `rgba(${c3.join(",")},0.35)`);
-    g2.addColorStop(0.5, "rgba(7,10,8,0)");
-    g2.addColorStop(1, `rgba(${c1.join(",")},0.3)`);
-    ctx.fillStyle = g2;
-    ctx.fillRect(0, 0, w, h);
-
-    // readability overlay — dark enough for UI, light enough to see camo shift
-    ctx.fillStyle = "rgba(6,9,7,0.68)";
-    ctx.fillRect(0, 0, w, h);
-
-    if (!reduceMotion) requestAnimationFrame(frame);
+    if (!reduce) requestAnimationFrame(frame);
   }
 
   resize();
-  window.addEventListener("resize", () => {
-    resize();
-    if (reduceMotion) frame(performance.now());
-  });
+  window.addEventListener("resize", resize);
   requestAnimationFrame(frame);
 }
 
-/* ---------- Featured banner strip ---------- */
-const FEATURED_CORE = [0, 1, 7, 13, 42, 69, 88, 100, 111, 222, 333, 420, 555, 666, 777, 1111, 2222, 3333, 4200, 4443];
-
-function pickFeatured(count = 12) {
-  const pool = [...FEATURED_CORE];
-  // sprinkle random IDs for variety
-  while (pool.length < count + 8) {
-    pool.push(Math.floor(Math.random() * MAX));
-  }
-  // shuffle
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  const seen = new Set();
-  const out = [];
-  for (const id of pool) {
-    if (seen.has(id)) continue;
-    seen.add(id);
-    out.push(id);
-    if (out.length >= count) break;
-  }
-  return out;
-}
-
-function buildFeatured(ids) {
+/* ---------- Public preview strip (look only) ---------- */
+function buildFeatured() {
   const el = document.getElementById("bannerStrip");
   if (!el) return;
+  const ids = [0, 7, 42, 100, 333, 420, 777, 1111, 2222, 3333, 4200, 4443];
   el.innerHTML = "";
-  (ids || pickFeatured(12)).forEach((id) => {
-    const card = document.createElement("button");
-    card.type = "button";
+  ids.forEach((id) => {
+    const card = document.createElement("div");
     card.className = "banner-card";
-    card.setAttribute("aria-label", `Load ${nameOf(id)} banner in lab`);
-    card.innerHTML = `
-      <img src="${svgToDataUrl(bannerSvg(id))}" alt="${nameOf(id)} banner 1500x500" width="450" height="150" loading="lazy" />
-      <span>${nameOf(id)} · #${id}</span>
-    `;
-    card.addEventListener("click", () => {
-      const input = document.getElementById("bannerId");
-      if (input) {
-        input.value = id;
-        renderBannerLab();
-        document.getElementById("lab")?.scrollIntoView({ behavior: "smooth" });
-      }
-    });
+    card.innerHTML = `<img src="${svgToDataUrl(bannerSvg(id))}" alt="" width="450" height="150" loading="lazy" />`;
     el.appendChild(card);
   });
 }
 
-/* ---------- Banner lab ---------- */
-function clampId(n) {
-  let id = parseInt(n, 10);
-  if (Number.isNaN(id) || id < 0) id = 0;
-  if (id >= MAX) id = MAX - 1;
-  return id;
-}
-
-function renderBannerLab() {
-  const input = document.getElementById("bannerId");
-  const preview = document.getElementById("bannerPreview");
-  const label = document.getElementById("bannerLabel");
-  if (!input || !preview) return;
-  const id = clampId(input.value);
-  input.value = id;
-  const svg = bannerSvg(id);
-  preview.src = svgToDataUrl(svg);
-  preview.dataset.svg = svg;
-  if (label) label.textContent = `${nameOf(id)} · #${id} · ${BANNER_W}×${BANNER_H} · X header`;
-}
-
-function downloadBanner(format) {
-  const preview = document.getElementById("bannerPreview");
-  const input = document.getElementById("bannerId");
-  const id = clampId(input?.value || "0");
-  const svg = preview?.dataset.svg || bannerSvg(id);
-  if (format === "svg") {
-    const blob = new Blob([svg], { type: "image/svg+xml" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `camobit-${id}-banner-1500x500.svg`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    return;
-  }
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = BANNER_W;
-    canvas.height = BANNER_H;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `camobit-${id}-banner-1500x500.png`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }, "image/png");
+function initHeroRotate() {
+  const hero = document.getElementById("heroBanner");
+  if (!hero) return;
+  const ids = [0, 42, 333, 777, 1111, 4443];
+  let i = 0;
+  const tick = () => {
+    hero.src = svgToDataUrl(bannerSvg(ids[i % ids.length]));
+    i++;
   };
-  img.onerror = () => {
-    setMintMsg("PNG export failed — try SVG download", false);
-  };
-  img.src = svgToDataUrl(svg);
+  tick();
+  setInterval(tick, 5000);
 }
 
-/* ---------- Mint ---------- */
-let provider, signer, contract;
-
+/* ---------- Owner lab ---------- */
 async function loadEthers() {
   return import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
 }
@@ -388,14 +267,150 @@ async function ensureChain(BrowserProvider) {
             blockExplorerUrls: [EXPLORER],
           }],
         });
-      } else {
-        throw e;
-      }
+      } else throw e;
     }
   }
   signer = await provider.getSigner();
   const { Contract } = await loadEthers();
   contract = new Contract(CONTRACT, ABI, signer);
+}
+
+/** Scan minted range for tokens owned by addr (fine while supply is modest). */
+async function fetchOwnedIds(addr) {
+  const { JsonRpcProvider, Contract } = await loadEthers();
+  const p = new JsonRpcProvider(RPC);
+  const c = new Contract(CONTRACT, ABI, p);
+  const bal = await c.balanceOf(addr);
+  if (bal === 0n) return [];
+  const total = Number(await c.totalMinted());
+  if (total === 0) return [];
+  const me = addr.toLowerCase();
+  const owned = [];
+  const chunk = 40;
+  for (let i = 0; i < total; i += chunk) {
+    const jobs = [];
+    for (let j = i; j < Math.min(i + chunk, total); j++) {
+      const id = j;
+      jobs.push(
+        c.ownerOf(id)
+          .then((o) => (o.toLowerCase() === me ? id : null))
+          .catch(() => null)
+      );
+    }
+    const part = await Promise.all(jobs);
+    for (const x of part) if (x !== null) owned.push(x);
+    if (owned.length >= Number(bal)) break;
+  }
+  return owned.sort((a, b) => a - b);
+}
+
+function showLabOpen() {
+  document.getElementById("labLocked")?.classList.add("hidden");
+  document.getElementById("labOpen")?.classList.remove("hidden");
+}
+
+function fillOwnedSelect() {
+  const sel = document.getElementById("ownedSelect");
+  const frame = document.getElementById("previewFrame");
+  if (!sel) return;
+  sel.innerHTML = "";
+  if (!ownedIds.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "None owned";
+    sel.appendChild(opt);
+    frame?.classList.add("empty");
+    const prev = document.getElementById("bannerPreview");
+    if (prev) {
+      prev.removeAttribute("src");
+      delete prev.dataset.svg;
+    }
+    const label = document.getElementById("bannerLabel");
+    if (label) label.textContent = "";
+    return;
+  }
+  ownedIds.forEach((id) => {
+    const opt = document.createElement("option");
+    opt.value = String(id);
+    opt.textContent = `${nameOf(id)} · #${id}`;
+    sel.appendChild(opt);
+  });
+  sel.value = String(ownedIds[0]);
+  renderOwnedBanner();
+}
+
+function renderOwnedBanner() {
+  const sel = document.getElementById("ownedSelect");
+  const preview = document.getElementById("bannerPreview");
+  const label = document.getElementById("bannerLabel");
+  const frame = document.getElementById("previewFrame");
+  if (!sel || !preview) return;
+  const id = parseInt(sel.value, 10);
+  if (Number.isNaN(id) || !ownedIds.includes(id)) {
+    frame?.classList.add("empty");
+    return;
+  }
+  const svg = bannerSvg(id);
+  preview.src = svgToDataUrl(svg);
+  preview.dataset.svg = svg;
+  frame?.classList.remove("empty");
+  if (label) label.textContent = `${nameOf(id)} · #${id}`;
+}
+
+function downloadBanner(format) {
+  if (!ownedIds.length) {
+    setMintMsg("Mint first — only your CamoBits", false);
+    return;
+  }
+  const preview = document.getElementById("bannerPreview");
+  const sel = document.getElementById("ownedSelect");
+  const id = parseInt(sel?.value || "", 10);
+  if (!ownedIds.includes(id)) {
+    setMintMsg("Pick one of your CamoBits", false);
+    return;
+  }
+  const svg = preview?.dataset.svg || bannerSvg(id);
+  if (format === "svg") {
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `camobit-${id}-banner-1500x500.svg`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    return;
+  }
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = BANNER_W;
+    canvas.height = BANNER_H;
+    canvas.getContext("2d").drawImage(img, 0, 0);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `camobit-${id}-banner-1500x500.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }, "image/png");
+  };
+  img.src = svgToDataUrl(svg);
+}
+
+async function connectWallet() {
+  if (!window.ethereum) throw new Error("Install a wallet");
+  const { BrowserProvider } = await loadEthers();
+  await ensureChain(BrowserProvider);
+  walletAddr = await signer.getAddress();
+  const short = walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
+  const wl = document.getElementById("walletLabel");
+  if (wl) wl.textContent = short;
+  document.getElementById("btnMint").disabled = false;
+  setMintMsg("Connected", true);
+  showLabOpen();
+  ownedIds = await fetchOwnedIds(walletAddr);
+  fillOwnedSelect();
+  await refreshMintStats();
 }
 
 async function refreshMintStats() {
@@ -406,17 +421,13 @@ async function refreshMintStats() {
     const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
     const elM = document.getElementById("statMinted");
     const elP = document.getElementById("statPrice");
-    if (elM) elM.textContent = `${minted.toString()} / ${MAX}`;
-    if (elP) {
-      const eth = Number(price) / 1e18;
-      elP.textContent = `${eth.toFixed(6)} ETH ≈ $0.70`;
-    }
-  } catch (e) {
-    console.warn("mint stats", e);
+    if (elM) elM.textContent = `${minted} / ${MAX}`;
+    if (elP) elP.textContent = `${(Number(price) / 1e18).toFixed(6)} ETH`;
+  } catch {
     const elM = document.getElementById("statMinted");
     const elP = document.getElementById("statPrice");
     if (elM && elM.textContent === "—") elM.textContent = "0 / 4444";
-    if (elP && elP.textContent === "—") elP.textContent = "0.000220 ETH ≈ $0.70";
+    if (elP && elP.textContent === "—") elP.textContent = "0.000220 ETH";
   }
 }
 
@@ -427,102 +438,40 @@ function setMintMsg(t, ok) {
   el.textContent = t || "";
 }
 
-/* ---------- Hero rotate ---------- */
-function initHeroRotate() {
-  const hero = document.getElementById("heroBanner");
-  const cap = document.getElementById("heroCap");
-  if (!hero) return;
-  const ids = [0, 7, 42, 100, 333, 420, 777, 1111, 2222, 4443];
-  let i = 0;
-  const tick = () => {
-    const id = ids[i % ids.length];
-    hero.src = svgToDataUrl(bannerSvg(id));
-    if (cap) cap.textContent = `${nameOf(id)} · #${id} · X header 1500×500`;
-    i++;
-  };
-  tick();
-  setInterval(tick, 4500);
-}
-
-/* ---------- Nav ---------- */
-function initNav() {
-  const nav = document.querySelector(".nav");
-  const btn = document.getElementById("navToggle");
-  btn?.addEventListener("click", () => {
-    const open = nav?.classList.toggle("open");
-    btn.setAttribute("aria-expanded", open ? "true" : "false");
-  });
-  document.querySelectorAll(".nav-links a").forEach((a) =>
-    a.addEventListener("click", () => {
-      nav?.classList.remove("open");
-      btn?.setAttribute("aria-expanded", "false");
-    })
-  );
-}
-
-/* ---------- Boot ---------- */
 function boot() {
   initChameleonBg();
-  initNav();
   initHeroRotate();
-  buildFeatured(pickFeatured(12));
-  renderBannerLab();
+  buildFeatured();
   refreshMintStats();
-  setInterval(refreshMintStats, 20000);
+  setInterval(refreshMintStats, 25000);
 
-  document.getElementById("bannerId")?.addEventListener("input", renderBannerLab);
-  document.getElementById("bannerId")?.addEventListener("change", renderBannerLab);
-  document.getElementById("btnBannerSvg")?.addEventListener("click", () => downloadBanner("svg"));
+  document.getElementById("ownedSelect")?.addEventListener("change", renderOwnedBanner);
   document.getElementById("btnBannerPng")?.addEventListener("click", () => downloadBanner("png"));
-  document.getElementById("btnRandom")?.addEventListener("click", () => {
-    const input = document.getElementById("bannerId");
-    if (input) {
-      input.value = Math.floor(Math.random() * MAX);
-      renderBannerLab();
-    }
-  });
-  document.getElementById("btnPrev")?.addEventListener("click", () => {
-    const input = document.getElementById("bannerId");
-    if (!input) return;
-    input.value = clampId(Number(input.value) - 1);
-    renderBannerLab();
-  });
-  document.getElementById("btnNext")?.addEventListener("click", () => {
-    const input = document.getElementById("bannerId");
-    if (!input) return;
-    input.value = clampId(Number(input.value) + 1);
-    renderBannerLab();
-  });
-  document.getElementById("btnMoreBanners")?.addEventListener("click", () => {
-    buildFeatured(pickFeatured(12));
-  });
+  document.getElementById("btnBannerSvg")?.addEventListener("click", () => downloadBanner("svg"));
 
-  document.getElementById("btnConnect")?.addEventListener("click", async () => {
+  const onConnect = async () => {
     try {
-      if (!window.ethereum) throw new Error("Install MetaMask (or a web3 wallet)");
-      const { BrowserProvider } = await loadEthers();
-      await ensureChain(BrowserProvider);
-      const addr = await signer.getAddress();
-      document.getElementById("walletLabel").textContent =
-        addr.slice(0, 6) + "…" + addr.slice(-4);
-      document.getElementById("btnMint").disabled = false;
-      setMintMsg("Connected on Robinhood Chain", true);
-      await refreshMintStats();
+      await connectWallet();
     } catch (e) {
       setMintMsg(e.shortMessage || e.message || String(e), false);
     }
-  });
+  };
+  document.getElementById("btnConnect")?.addEventListener("click", onConnect);
+  document.getElementById("btnConnectLab")?.addEventListener("click", onConnect);
 
   document.getElementById("btnMint")?.addEventListener("click", async () => {
     try {
-      if (!contract) throw new Error("Connect wallet first");
+      if (!contract) throw new Error("Connect first");
       const qty = Math.max(1, Math.min(20, parseInt(document.getElementById("qty").value, 10) || 1));
-      setMintMsg("Confirm in wallet…");
+      setMintMsg("Confirm…");
       const unit = await contract.mintPriceWei();
       const tx = await contract.mint(qty, { value: unit * BigInt(qty) });
-      setMintMsg("Tx " + tx.hash.slice(0, 14) + "… waiting…", true);
+      setMintMsg("Minting…", true);
       await tx.wait();
-      setMintMsg(`Minted ${qty} CamoBit(s). View on explorer / OpenSea.`, true);
+      setMintMsg(`Minted ${qty}`, true);
+      ownedIds = await fetchOwnedIds(walletAddr);
+      fillOwnedSelect();
+      showLabOpen();
       await refreshMintStats();
     } catch (e) {
       setMintMsg(e.shortMessage || e.message || String(e), false);
@@ -531,7 +480,7 @@ function boot() {
 
   document.querySelectorAll("[data-contract]").forEach((a) => {
     a.href = `${EXPLORER}/address/${CONTRACT}`;
-    a.textContent = CONTRACT.slice(0, 10) + "…" + CONTRACT.slice(-6);
+    a.textContent = "0x4314…F3AD";
   });
 }
 
