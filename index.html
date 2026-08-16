@@ -4,215 +4,183 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0e0c" />
-  <meta name="description" content="CamoBits — 999 pure-code 8-bit 1/1s. Animated GIFs." />
-  <title>CamoBits · 999 1/1s</title>
+  <meta name="description" content="CamoBits — 4444 on-chain X banners. Mint on Robinhood Chain · $0.70 · Banner Lab downloads 1500×500." />
+  <meta property="og:title" content="CamoBits · X Banner Collection" />
+  <meta property="og:description" content="Not a PFP. 4444 pure-code banners for Twitter/X headers. Mint live on Robinhood Chain." />
+  <meta property="og:type" content="website" />
+  <title>CamoBits · X Banners · Robinhood Chain</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://pixelchameleons.s3.filebase.io/site/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
-  <div class="scanlines" aria-hidden="true"></div>
-  <div class="noise" aria-hidden="true"></div>
-  <canvas id="px-field" aria-hidden="true"></canvas>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
   <header class="nav">
-    <a class="logo" href="#top">
-      <span class="logo-dot"></span>
-      CAMO<span>BITS</span>
-    </a>
+    <a class="logo" href="#top">CAMO<span>BITS</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
     <nav class="nav-links" id="navLinks">
-      <a href="#gallery">Gallery</a>
-      <a href="#origin">Origin</a>
-      <a href="#forge">The Forge</a>
-      <a href="#rarity">Rarity</a>
-      <a href="#traits">Traits</a>
+      <a href="#banners">Banners</a>
+      <a href="#lab">Banner Lab</a>
+      <a href="#mint">Mint</a>
+      <a href="#about">About</a>
+      <a class="nav-mint" href="#mint">Mint now</a>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow blink-cursor">999 SUPPLY</p>
-        <h1>
-          <span class="line">Camo that</span>
-          <span class="line accent">shifts on purpose</span>
-        </h1>
+        <p class="eyebrow">4444 · ROBINHOOD CHAIN · ON-CHAIN SVG · $0.70</p>
+        <h1>Not a PFP.<br /><span class="accent">A banner collection.</span></h1>
         <p class="lede">
-          Every CamoBit is a deterministic 8-bit creature painted by code —
-          not a prompt, not a layer folder. Side-profile, one eye, slow blink,
-          habitat under its feet. Rarity is math baked into the pixels.
+          CamoBits are pure-code creatures built for <strong>X / Twitter headers</strong> —
+          true <strong>1500×500</strong> format, chameleon color-shift energy, mint live on
+          Robinhood Chain. Art lives on-chain. Search any ID in Banner Lab and download a
+          perfect header — free, from your browser.
         </p>
         <div class="hero-cta">
-          <a class="btn primary" href="#gallery">Explore the 999</a>
-          <a class="btn ghost" href="#forge">How they’re made</a>
+          <a class="btn primary" href="#mint">Mint CamoBit</a>
+          <a class="btn ghost" href="#lab">Open Banner Lab</a>
         </div>
         <ul class="stat-strip">
-          <li><strong>999</strong><span>1/1 GIFs</span></li>
-          <li><strong>72²</strong><span>pixel canvas</span></li>
-          <li><strong>4</strong><span>frame loop</span></li>
-          <li><strong>0</strong><span>AI images</span></li>
+          <li><strong>4444</strong><span>supply</span></li>
+          <li><strong>$0.70</strong><span>mint</span></li>
+          <li><strong>1500×500</strong><span>X banner</span></li>
+          <li><strong>RH 4663</strong><span>chain</span></li>
         </ul>
       </div>
-      <div class="hero-stage">
-        <div class="stage-glow"></div>
-        <div class="stage-frame">
-          <img id="heroGif" src="https://pixelchameleons.s3.filebase.io/images/000.gif" alt="Genesis Bit animated" width="360" height="360" />
-          <div class="stage-tag">
-            <span id="heroName">#000 Genesis Bit</span>
-            <span class="tier tier-legendary" id="heroTier">1/1 Legendary</span>
-          </div>
+      <div class="hero-banner-wrap">
+        <div class="hero-banner-frame">
+          <img id="heroBanner" src="" alt="Featured CamoBit banner 1500x500" width="1500" height="500" />
         </div>
-        <div class="hero-thumbs" id="heroThumbs"></div>
+        <p class="hero-banner-cap" id="heroCap">Live preview · X header format 1500×500</p>
       </div>
     </section>
 
-    <section class="section" id="gallery">
+    <section class="section" id="banners">
       <div class="section-head">
-        <h2>Living gallery</h2>
-        <p>Animated CamoBits from the collection. Tap a card — it becomes the stage focus.</p>
+        <h2>Banner gallery</h2>
+        <p>
+          Real X header previews — 3:1 ratio. Tap any card to load it in Banner Lab and download.
+        </p>
       </div>
-      <div class="filters" id="filters">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="legendary">1/1s</button>
-        <button class="chip" data-filter="laser">Lasers</button>
-        <button class="chip" data-filter="habitat">Habitat</button>
-        <button class="chip" data-filter="gradient">Gradients</button>
+      <div class="banner-strip" id="bannerStrip"></div>
+      <div class="strip-actions">
+        <button type="button" class="btn ghost" id="btnMoreBanners">Shuffle more banners</button>
       </div>
-      <div class="gallery-grid" id="galleryGrid"></div>
     </section>
 
-    <section class="section story" id="origin">
+    <section class="section lab" id="lab">
       <div class="section-head">
-        <h2>Why they exist</h2>
-        <p>A habitat for code-born camouflage.</p>
+        <h2>Banner Lab</h2>
+        <p>
+          Search any CamoBit by token ID (0–4443). Preview at full X size.
+          Download PNG or SVG — works for everyone, no wallet required.
+        </p>
       </div>
-      <div class="story-grid">
-        <article class="story-card">
-          <div class="story-num">01</div>
-          <h3>One canvas. One law.</h3>
-          <p>
-            Each token is drawn on a <strong>72×72</strong> grid, nearest-neighbor
-            scaled to display size. Black 1px outlines. Side-profile so you always
-            see the turret eye — the CamoBit signature.
-          </p>
+      <div class="lab-box">
+        <div class="lab-controls">
+          <label for="bannerId">Token ID</label>
+          <input id="bannerId" type="number" min="0" max="4443" value="0" inputmode="numeric" />
+          <button type="button" class="btn ghost" id="btnRandom">Random</button>
+          <button type="button" class="btn ghost" id="btnPrev">←</button>
+          <button type="button" class="btn ghost" id="btnNext">→</button>
+          <button type="button" class="btn primary" id="btnBannerPng">Download PNG 1500×500</button>
+          <button type="button" class="btn ghost" id="btnBannerSvg">Download SVG</button>
+        </div>
+        <p class="banner-label" id="bannerLabel">—</p>
+        <div class="banner-preview-frame">
+          <img id="bannerPreview" alt="Banner preview 1500 by 500" width="1500" height="500" />
+        </div>
+        <div class="lab-meta">
+          <span class="pill">X / Twitter header</span>
+          <span class="pill">1500 × 500 px</span>
+          <span class="pill">Client-side render</span>
+        </div>
+        <p class="hint">
+          Tip: On X → Edit profile → Header photo → upload the PNG. Safe zone keeps the CamoBit
+          clear of avatar crop on mobile.
+        </p>
+      </div>
+    </section>
+
+    <section class="section mint-sec" id="mint">
+      <div class="section-head">
+        <h2>Mint live</h2>
+        <p>
+          Pay as you mint. No premint. Funds go straight to the treasury.
+          On-chain SVG on Robinhood Chain — no image server for the NFT.
+        </p>
+      </div>
+      <div class="mint-card">
+        <div class="mint-stats">
+          <div><span class="k">Minted</span><strong id="statMinted">—</strong></div>
+          <div><span class="k">Price</span><strong id="statPrice">—</strong></div>
+          <div><span class="k">Wallet</span><strong id="walletLabel">not connected</strong></div>
+        </div>
+        <div class="mint-actions">
+          <button type="button" class="btn secondary" id="btnConnect">Connect wallet</button>
+          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="20" value="1" /></label>
+          <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
+        </div>
+        <p class="mint-msg" id="mintMsg"></p>
+        <p class="hint">
+          Network: <strong>Robinhood Chain (4663)</strong> · Contract:
+          <a data-contract href="#" target="_blank" rel="noopener">—</a>
+        </p>
+        <p class="hint">
+          Treasury (mint funds): <code>0x76B2c9Dfd8DCe539A6e009c0B5283c44e2D45421</code>
+        </p>
+        <p class="hint">
+          Standalone mint page: <a href="/mint">/mint</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="section-head">
+        <h2>How it works</h2>
+      </div>
+      <div class="about-grid">
+        <article class="about-card">
+          <h3>Banner-first</h3>
+          <p>Designed for X headers — not square PFPs. Every CamoBit has a ready 1500×500 layout in Banner Lab.</p>
         </article>
-        <article class="story-card">
-          <div class="story-num">02</div>
-          <h3>No layers folder.</h3>
-          <p>
-            There is no Photoshop stack. Pure procedures paint ellipses, tails,
-            tongues, vines, and grounds. Same rules → same bit. Forever.
-          </p>
+        <article class="about-card">
+          <h3>On-chain SVG</h3>
+          <p>Art + metadata live in the diamond contract on Robinhood. No media server for the NFT itself.</p>
         </article>
-        <article class="story-card">
-          <div class="story-num">03</div>
-          <h3>They breathe slowly.</h3>
-          <p>
-            Four frames: open · blink · open · look. Biological eyes blink once.
-            Shades and lasers never double-blink — one eye, one cover, one beam.
-          </p>
+        <article class="about-card">
+          <h3>Pay-as-you-mint</h3>
+          <p>~$0.70 mint. No premint dump. Public mint open on the diamond. Funds → treasury.</p>
         </article>
-        <article class="story-card">
-          <div class="story-num">04</div>
-          <h3>Habitat, not hype props.</h3>
-          <p>
-            Grounds, plants, and extras are jungle-native: moss, lily pads, hanging
-            vines, crickets, dew. Rarity is in the weights — not random stickers.
-          </p>
+        <article class="about-card">
+          <h3>OpenSea ready</h3>
+          <p>Import the contract on Robinhood Chain for marketplace trading after you mint.</p>
         </article>
       </div>
-    </section>
-
-    <section class="section forge" id="forge">
-      <div class="section-head">
-        <h2>The forge</h2>
-        <p>How a single CamoBit becomes pixels — and why no two DNA strings match.</p>
-      </div>
-      <div class="pipeline">
-        <div class="pipe-step" data-step="1">
-          <div class="pipe-icon">⌀</div>
-          <h3>Identity</h3>
-          <p>Each token id feeds a locked generator. Re-run it and you get the same bit — always.</p>
-        </div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step" data-step="2">
-          <div class="pipe-icon">⬡</div>
-          <h3>Weighted roll</h3>
-          <p>Background, ground, plants, body, eyes, hat, mouth, extra. Scarcer rolls stack rarer.</p>
-        </div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step" data-step="3">
-          <div class="pipe-icon">▣</div>
-          <h3>Paint</h3>
-          <p>Sky → habitat plants → ground → body &amp; spiral tail → outline → face, hat, extras.</p>
-        </div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step" data-step="4">
-          <div class="pipe-icon">↻</div>
-          <h3>Animate</h3>
-          <p>Four frames, slow loop. Export as GIF. Rarity score follows the same trait weights.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section rarity" id="rarity">
-      <div class="section-head">
-        <h2>Rarity is baked in</h2>
-        <p>Tiers come from the same weights that chose the pixels — not a post-hoc spreadsheet.</p>
-      </div>
-      <div class="tier-board">
-        <div class="tier-card t1">
-          <span class="tier-label">1/1 Legendary</span>
-          <strong>Named icons</strong>
-          <p>Hand-locked legends — Genesis Bit, Inferno King, Galaxy Drift, Final Form, and more.</p>
-        </div>
-        <div class="tier-card t2">
-          <span class="tier-label">Mythic</span>
-          <strong>God stacks</strong>
-          <p>High inverse-weight sum. Often gradient skies + ultra body + rare eyes.</p>
-        </div>
-        <div class="tier-card t3">
-          <span class="tier-label">Legendary · Epic</span>
-          <strong>Heavy paints</strong>
-          <p>Lasers, crystal grounds, orchid vines, diamond crowns in the wild pool.</p>
-        </div>
-        <div class="tier-card t4">
-          <span class="tier-label">Rare · Uncommon</span>
-          <strong>Still 1/1</strong>
-          <p>Every DNA string is unique across all 999. No common filler art path.</p>
-        </div>
-      </div>
-      <div class="rarity-explain">
-        <h3>How rarity shows up in the image</h3>
-        <ol>
-          <li><strong>Trait odds</strong> — scarcer paints roll less often (eyes, body, sky, ground…).</li>
-          <li><strong>Stack score</strong> — rarer traits add up; the total ranks the bit.</li>
-          <li><strong>Tiers</strong> — score maps to Mythic / Legendary / Epic / Rare / Uncommon.</li>
-          <li><strong>Looks matter</strong> — top stacks can unlock gradient skies so rare feels rare, not just labeled.</li>
-          <li><strong>No twins</strong> — full trait DNA is unique across the whole supply.</li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="section" id="traits">
-      <div class="section-head">
-        <h2>What can roll</h2>
-        <p>Eight slots. Habitat-first. No clothes glued to the body.</p>
-      </div>
-      <div class="trait-grid" id="traitGrid"></div>
     </section>
 
     <footer class="footer">
-      <div class="footer-inner footer-simple">
-        <div class="logo footer-logo"><span class="logo-dot"></span>CAMOBITS</div>
+      <div class="footer-inner">
+        <div class="logo">CAMO<span>BITS</span></div>
+        <div class="footer-links">
+          <a href="#lab">Banner Lab</a>
+          <a href="#mint">Mint</a>
+          <a href="/mint">Mint page</a>
+          <a data-contract href="#" target="_blank" rel="noopener">Contract</a>
+          <a href="https://opensea.io" target="_blank" rel="noopener">OpenSea</a>
+        </div>
       </div>
+      <p class="footer-note">CamoBits · Robinhood Chain · banner project</p>
     </footer>
   </main>
 
-  <script src="https://pixelchameleons.s3.filebase.io/site/app.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

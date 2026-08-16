@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mint CamoBits · Robinhood Chain</title>
+  <meta name="description" content="Mint CamoBits on Robinhood Chain — $0.70 · on-chain SVG · OpenSea" />
+  <meta name="theme-color" content="#0a0c08" />
+  <style>
+    :root {
+      --hood: #CDFF00;
+      --bg: #0a0c08;
+      --panel: #141810;
+      --muted: #9aaa88;
+      --text: #f4ffe8;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100dvh;
+      font-family: ui-monospace, "Cascadia Code", system-ui, monospace;
+      background:
+        radial-gradient(900px 500px at 50% -20%, rgba(205,255,0,0.14), transparent 55%),
+        radial-gradient(700px 400px at 90% 80%, rgba(0,200,5,0.1), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      display: grid; place-items: center;
+      padding: 1.25rem;
+    }
+    .card {
+      width: min(440px, 100%);
+      background: var(--panel);
+      border: 1px solid #2a3320;
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .badge {
+      display: inline-block; font-size: 0.7rem; color: var(--hood);
+      border: 1px solid rgba(205,255,0,0.4); border-radius: 999px;
+      padding: 0.3rem 0.65rem; margin-bottom: 0.85rem;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 0.4rem; font-weight: 600; }
+    p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin: 0 0 1rem; }
+    .row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; }
+    label { font-size: 0.8rem; color: var(--muted); }
+    input[type=number] {
+      width: 5rem; background: #0a0c08; border: 1px solid #2a3320; color: var(--text);
+      border-radius: 10px; padding: 0.55rem 0.65rem; font: inherit;
+    }
+    button {
+      flex: 1; min-width: 120px; border: 0; border-radius: 12px; padding: 0.85rem 1rem;
+      font: inherit; font-weight: 600; cursor: pointer;
+      background: var(--hood); color: #0a0c08;
+    }
+    button.secondary { background: transparent; color: var(--hood); border: 1px solid rgba(205,255,0,0.45); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .stat { font-size: 0.78rem; color: var(--muted); margin: 0.35rem 0; word-break: break-all; }
+    .stat strong { color: var(--text); }
+    .err { color: var(--danger); font-size: 0.8rem; margin-top: 0.75rem; }
+    .ok { color: var(--hood); font-size: 0.8rem; margin-top: 0.75rem; }
+    a { color: var(--hood); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">ROBINHOOD CHAIN · $0.70 MINT · ON-CHAIN SVG</span>
+    <h1>Mint CamoBits</h1>
+    <p>
+      4444 pure-code 1/1s built as <strong style="color:var(--text)">X banners</strong>.
+      Pay as you mint — funds go to the collection treasury.
+      Art is on-chain SVG.
+    </p>
+
+    <div class="stat">Contract: <strong id="contractLabel">loading…</strong></div>
+    <div class="stat">Minted: <strong id="minted">—</strong> / 4444</div>
+    <div class="stat">Price / mint: <strong id="price">—</strong> ETH <span id="priceUsd">(~$0.70)</span></div>
+    <div class="stat">Wallet: <strong id="wallet">not connected</strong></div>
+    <div class="stat">Treasury: <strong>0x76B2…5421</strong></div>
+
+    <div class="row">
+      <button type="button" class="secondary" id="btnConnect">Connect wallet</button>
+    </div>
+    <div class="row">
+      <label for="qty">Qty</label>
+      <input id="qty" type="number" min="1" max="20" value="1" />
+      <button type="button" id="btnMint" disabled>Mint</button>
+    </div>
+    <div id="msg"></div>
+    <p style="margin-top:1rem;font-size:0.75rem">
+      Need Robinhood Chain (id 4663) + ETH for gas + mint price.
+      <a href="/">Home · Banner Lab</a>
+      · <a id="explorerLink" href="#" target="_blank" rel="noopener">Explorer</a>
+    </p>
+  </div>
+
+  <script>
+    const DEFAULT_CONTRACT = "0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD";
+    const CHAIN_ID = 4663n;
+    const CHAIN_HEX = "0x1237";
+    const RPC = "https://rpc.mainnet.chain.robinhood.com";
+    const EXPLORER = "https://robinhoodchain.blockscout.com";
+
+    const ABI = [
+      "function mint(uint256 quantity) payable",
+      "function mintPriceWei() view returns (uint256)",
+      "function totalMinted() view returns (uint256)",
+      "function treasury() view returns (address)",
+    ];
+
+    let provider, signer, contract, contractAddr;
+
+    const $ = (id) => document.getElementById(id);
+    function msg(t, ok) {
+      $("msg").className = ok ? "ok" : "err";
+      $("msg").textContent = t || "";
+    }
+
+    function resolveContract() {
+      const q = new URLSearchParams(location.search).get("c");
+      contractAddr = (q || localStorage.getItem("camobits_diamond") || DEFAULT_CONTRACT || "").trim();
+      $("contractLabel").textContent = contractAddr || "missing";
+      if (contractAddr) {
+        $("explorerLink").href = EXPLORER + "/address/" + contractAddr;
+      }
+      return contractAddr;
+    }
+
+    async function ensureChain() {
+      const id = await provider.send("eth_chainId", []);
+      if (BigInt(id) === CHAIN_ID) return;
+      try {
+        await provider.send("wallet_switchEthereumChain", [{ chainId: CHAIN_HEX }]);
+      } catch (e) {
+        if (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902)) {
+          await provider.send("wallet_addEthereumChain", [{
+            chainId: CHAIN_HEX,
+            chainName: "Robinhood Chain",
+            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+            rpcUrls: [RPC],
+            blockExplorerUrls: [EXPLORER],
+          }]);
+        } else throw e;
+      }
+    }
+
+    async function refresh() {
+      if (!contract) {
+        // public read without wallet
+        try {
+          const { JsonRpcProvider, Contract } = await import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
+          const p = new JsonRpcProvider(RPC);
+          const c = new Contract(contractAddr, ABI, p);
+          const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
+          $("minted").textContent = minted.toString();
+          $("price").textContent = (Number(price) / 1e18).toFixed(6);
+        } catch (_) {
+          $("minted").textContent = "0";
+          $("price").textContent = "0.000220";
+        }
+        return;
+      }
+      const [minted, price] = await Promise.all([
+        contract.totalMinted(),
+        contract.mintPriceWei(),
+      ]);
+      $("minted").textContent = minted.toString();
+      $("price").textContent = (Number(price) / 1e18).toFixed(6);
+    }
+
+    $("btnConnect").onclick = async () => {
+      try {
+        msg("");
+        if (!window.ethereum) throw new Error("Install MetaMask");
+        if (!resolveContract()) throw new Error("Contract address missing");
+        const { BrowserProvider, Contract } = await import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
+        provider = new BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        await ensureChain();
+        signer = await provider.getSigner();
+        const addr = await signer.getAddress();
+        $("wallet").textContent = addr.slice(0, 6) + "…" + addr.slice(-4);
+        contract = new Contract(contractAddr, ABI, signer);
+        $("btnMint").disabled = false;
+        await refresh();
+        msg("Connected on Robinhood Chain", true);
+      } catch (e) {
+        console.error(e);
+        msg(e.shortMessage || e.message || String(e));
+      }
+    };
+
+    $("btnMint").onclick = async () => {
+      try {
+        msg("Confirm in wallet…");
+        const qty = Math.max(1, Math.min(20, parseInt($("qty").value, 10) || 1));
+        const unit = await contract.mintPriceWei();
+        const value = unit * BigInt(qty);
+        const tx = await contract.mint(qty, { value });
+        msg("Tx sent: " + tx.hash.slice(0, 12) + "…", true);
+        await tx.wait();
+        await refresh();
+        msg("Minted " + qty + " CamoBit(s). Check explorer / OpenSea.", true);
+      } catch (e) {
+        console.error(e);
+        msg(e.shortMessage || e.message || String(e));
+      }
+    };
+
+    resolveContract();
+    refresh();
+  </script>
+</body>
+</html>
