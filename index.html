@@ -1,97 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0e0c" />
-  <meta name="description" content="CamoBits — 4444 X banners on Robinhood Chain. $0.70 mint." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="CamoBits — 4444 on-chain X banners on Robinhood Chain. Mint · fit · download." />
   <link rel="canonical" href="https://camobits.xyz/" />
   <title>CamoBits</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hood: "#CCFF00",
+            ink: "#0a0a0a",
+            panel: "#121412",
+            line: "#1f241f",
+            mute: "#8a948a",
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+            mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html { scroll-behavior: smooth; }
+    .banner-cube {
+      aspect-ratio: 3 / 1;
+      background:
+        linear-gradient(90deg, rgba(204,255,0,0.06) 1px, transparent 1px) 0 0 / 33.333% 100%,
+        #0d0f0d;
+    }
+    .banner-cube img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
 </head>
-<body>
-  <div class="bg-layers" aria-hidden="true">
-    <div class="bg-grad g1"></div>
-    <div class="bg-grad g2"></div>
-    <div class="bg-grad g3"></div>
-    <canvas id="bg-canvas"></canvas>
-  </div>
-
-  <header class="nav">
-    <a class="logo" href="#top">CAMO<span>BITS</span></a>
-    <nav class="nav-links">
-      <a href="#mint">Mint</a>
-      <a href="#lab">My banner</a>
-      <a id="openseaNav" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
-    </nav>
+<body class="min-h-full bg-ink text-white font-sans antialiased">
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 border-b border-line/80 bg-ink/80 backdrop-blur-xl">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+      <a href="#top" class="flex items-center gap-2.5 group" aria-label="CamoBits home">
+        <!-- Exact RH-style mark: black feather, diagonal split, #CCFF00 square -->
+        <span class="inline-flex h-9 w-9 shrink-0 overflow-hidden rounded-[9px] bg-hood shadow-[0_0_0_1px_rgba(204,255,0,0.25)]" aria-hidden="true">
+          <svg viewBox="0 0 48 48" class="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="48" height="48" fill="#CCFF00"/>
+            <!-- Solid black stylized feather/quill, pointed bottom-left, diagonal split (up-arrow void) -->
+            <path fill="#0a0a0a" d="
+              M26.2 5.2
+              C20.4 12.8 16.8 19.6 15.6 27
+              c-0.5 3.2-0.2 6.2 1.1 8.8
+              c1.8-2.6 3.6-5.6 5.2-9.2
+              c0.3 0.05 0.6 0.08 0.9 0.08
+              c1.6 3.6 3.4 6.6 5.2 9.2
+              c1.3-2.6 1.6-5.6 1.1-8.8
+              C28 19.6 28.8 12.8 26.2 5.2Z
+            "/>
+            <!-- diagonal split cut — forms the classic RH up-arrow negative space -->
+            <path fill="#CCFF00" d="
+              M24 16.5
+              L30.8 29.2
+              H27.2
+              V37
+              H20.8
+              V29.2
+              H17.2
+              Z
+            "/>
+          </svg>
+        </span>
+        <span class="text-[15px] font-semibold tracking-tight text-white group-hover:text-hood transition-colors">
+          Camo<span class="text-hood">Bits</span>
+        </span>
+      </a>
+      <nav class="flex items-center gap-5 text-sm text-mute">
+        <a href="#features" class="hover:text-white transition-colors hidden sm:inline">Features</a>
+        <a href="#lab" class="hover:text-white transition-colors">Banner Lab</a>
+        <a href="#mint" class="hover:text-white transition-colors">Mint</a>
+        <a href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener" class="hover:text-hood transition-colors">OpenSea</a>
+        <a href="#mint" class="rounded-full bg-hood px-3.5 py-1.5 text-sm font-semibold text-ink hover:brightness-110 transition">Mint</a>
+      </nav>
+    </div>
   </header>
 
   <main id="top">
-    <section class="hero">
-      <h1><span class="accent">X banners.</span> Not PFPs.</h1>
-      <p class="sub">4444 · Robinhood · $0.70</p>
-      <div class="hero-banner-frame">
-        <img id="heroBanner" alt="" width="1500" height="500" />
-      </div>
-      <div class="hero-cta">
-        <a class="btn primary" href="#mint">Mint</a>
-        <a class="btn ghost" href="#lab">My banner</a>
-        <a class="btn ghost" id="openseaHero" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
-      </div>
-    </section>
-
-    <section class="section strip" id="banners">
-      <div class="banner-strip" id="bannerStrip"></div>
-    </section>
-
-    <section class="section" id="lab">
-      <h2>My banner</h2>
-      <div class="lab-box" id="labBox">
-        <div class="lab-locked" id="labLocked">
-          <p>Connect to size <strong>your</strong> CamoBits.</p>
-          <button type="button" class="btn secondary" id="btnConnectLab">Connect</button>
-        </div>
-        <div class="lab-open hidden" id="labOpen">
-          <div class="lab-controls">
-            <select id="ownedSelect" aria-label="Your CamoBits"></select>
-            <button type="button" class="btn primary" id="btnBannerPng">PNG 1500×500</button>
-            <button type="button" class="btn ghost" id="btnBannerSvg">SVG</button>
+    <!-- HERO -->
+    <section class="relative overflow-hidden border-b border-line">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(204,255,0,0.12),transparent_55%)]"></div>
+      <div class="relative mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-24">
+        <div class="max-w-2xl">
+          <p class="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-hood">Robinhood Chain · 4444 supply</p>
+          <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.1] text-white">
+            Headers that move with the market.
+          </h1>
+          <p class="mt-5 text-base sm:text-lg text-mute leading-relaxed max-w-xl">
+            CamoBits are on-chain banners for X. Mint, open Banner Lab, download a perfect
+            <span class="text-white/90">1500×500</span> header — ready for your profile.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#mint" class="inline-flex items-center rounded-full bg-hood px-6 py-3 text-sm font-semibold text-ink hover:brightness-110 transition shadow-[0_0_32px_rgba(204,255,0,0.2)]">
+              Start minting
+            </a>
+            <a href="#lab" class="inline-flex items-center rounded-full border border-line px-6 py-3 text-sm font-medium text-white hover:border-hood/50 hover:text-hood transition">
+              Open Banner Lab
+            </a>
           </div>
-          <p class="banner-label" id="bannerLabel"></p>
-          <div class="banner-preview-frame empty" id="previewFrame">
-            <img id="bannerPreview" alt="" width="1500" height="500" />
-            <p class="empty-msg" id="emptyMsg">No CamoBits yet.</p>
+          <dl class="mt-12 grid grid-cols-3 gap-4 max-w-md">
+            <div>
+              <dt class="text-xs text-mute">Supply</dt>
+              <dd class="mt-1 text-lg font-semibold text-hood">4444</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-mute">Mint</dt>
+              <dd class="mt-1 text-lg font-semibold text-hood">$0.70</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-mute">Header</dt>
+              <dd class="mt-1 text-lg font-semibold text-hood">1500×500</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES: 3 random banner-fit previews -->
+    <section id="features" class="border-b border-line">
+      <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14">
+        <div class="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-semibold tracking-tight">Banner fit</h2>
+            <p class="mt-1 text-sm text-mute">On-chain style, locked to X header size.</p>
+          </div>
+          <button type="button" id="btnShuffle" class="text-sm text-hood hover:underline">Shuffle 3</button>
+        </div>
+        <div id="featureStrip" class="grid gap-4 sm:grid-cols-3"></div>
+      </div>
+    </section>
+
+    <!-- BANNER LAB: specialized 1500×500 cube only -->
+    <section id="lab" class="border-b border-line">
+      <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14">
+        <h2 class="text-lg font-semibold tracking-tight">Banner Lab</h2>
+        <p class="mt-1 text-sm text-mute max-w-lg">
+          For minters only. Loads your CamoBit into a 1500×500 frame so you can download a header for X.
+        </p>
+
+        <div class="mt-8 rounded-2xl border border-line bg-panel p-4 sm:p-6">
+          <!-- locked -->
+          <div id="labLocked" class="flex flex-col items-center justify-center gap-4 py-12 text-center">
+            <p class="text-sm text-mute">Connect the wallet that holds your mint.</p>
+            <button type="button" id="btnConnectLab" class="rounded-full border border-hood/40 px-5 py-2.5 text-sm font-medium text-hood hover:bg-hood/10 transition">
+              Connect
+            </button>
+          </div>
+
+          <!-- open -->
+          <div id="labOpen" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <select id="ownedSelect" class="min-w-[10rem] flex-1 rounded-xl border border-line bg-ink px-3 py-2.5 text-sm text-white outline-none focus:border-hood/50"></select>
+              <button type="button" id="btnBannerPng" class="rounded-full bg-hood px-4 py-2.5 text-sm font-semibold text-ink hover:brightness-110 transition">
+                Download PNG
+              </button>
+            </div>
+            <p id="bannerLabel" class="text-xs font-mono text-hood min-h-[1rem]"></p>
+            <!-- THE CUBE: fixed 3:1 / 1500×500 fit box -->
+            <div id="previewFrame" class="banner-cube relative overflow-hidden rounded-xl border border-hood/25 ring-1 ring-hood/10">
+              <img id="bannerPreview" alt="1500×500 banner preview" width="1500" height="500" class="hidden" />
+              <div id="emptyMsg" class="absolute inset-0 flex items-center justify-center text-sm text-mute">
+                No CamoBits in this wallet
+              </div>
+              <span class="pointer-events-none absolute bottom-2 right-2 rounded bg-hood/90 px-2 py-0.5 text-[10px] font-semibold text-ink">1500 × 500</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section mint-sec" id="mint">
-      <h2>Mint</h2>
-      <div class="mint-card">
-        <div class="mint-stats">
-          <div><span class="k">Minted</span><strong id="statMinted">—</strong></div>
-          <div><span class="k">Price</span><strong id="statPrice">—</strong></div>
-          <div><span class="k">Wallet</span><strong id="walletLabel">—</strong></div>
+    <!-- MINT -->
+    <section id="mint">
+      <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14">
+        <h2 class="text-lg font-semibold tracking-tight">Mint</h2>
+        <div class="mt-6 max-w-md rounded-2xl border border-line bg-panel p-5 sm:p-6">
+          <div class="grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <p class="text-xs text-mute">Minted</p>
+              <p id="statMinted" class="mt-1 font-semibold">—</p>
+            </div>
+            <div>
+              <p class="text-xs text-mute">Price</p>
+              <p id="statPrice" class="mt-1 font-semibold">—</p>
+            </div>
+            <div>
+              <p class="text-xs text-mute">Wallet</p>
+              <p id="walletLabel" class="mt-1 font-semibold truncate">—</p>
+            </div>
+          </div>
+          <div class="mt-5 flex flex-wrap items-center gap-2">
+            <button type="button" id="btnConnect" class="rounded-full border border-hood/40 px-4 py-2.5 text-sm font-medium text-hood hover:bg-hood/10 transition">
+              Connect
+            </button>
+            <label class="flex items-center gap-2 text-sm text-mute">
+              Qty
+              <input id="qty" type="number" min="1" max="20" value="1" class="w-14 rounded-lg border border-line bg-ink px-2 py-2 text-white outline-none focus:border-hood/50" />
+            </label>
+            <button type="button" id="btnMint" disabled class="rounded-full bg-hood px-5 py-2.5 text-sm font-semibold text-ink disabled:opacity-40 hover:brightness-110 transition">
+              Mint
+            </button>
+          </div>
+          <p id="mintMsg" class="mt-3 min-h-[1.25rem] text-sm"></p>
         </div>
-        <div class="mint-actions">
-          <button type="button" class="btn secondary" id="btnConnect">Connect</button>
-          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="20" value="1" /></label>
-          <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
-        </div>
-        <p class="mint-msg" id="mintMsg"></p>
       </div>
     </section>
-
-    <footer class="footer">
-      <span class="logo">CAMO<span>BITS</span></span>
-      <a id="openseaFoot" href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener">OpenSea</a>
-    </footer>
   </main>
 
-  <script src="app.js?v=7"></script>
+  <footer class="border-t border-line">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-4 sm:px-6 py-8 text-sm text-mute">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-7 w-7 overflow-hidden rounded-md bg-hood" aria-hidden="true">
+          <svg viewBox="0 0 48 48" class="h-full w-full"><rect width="48" height="48" fill="#CCFF00"/><path fill="#0a0a0a" d="M26.2 5.2C20.4 12.8 16.8 19.6 15.6 27c-0.5 3.2-0.2 6.2 1.1 8.8 1.8-2.6 3.6-5.6 5.2-9.2 0.3 0.05 0.6 0.08 0.9 0.08 1.6 3.6 3.4 6.6 5.2 9.2 1.3-2.6 1.6-5.6 1.1-8.8C28 19.6 28.8 12.8 26.2 5.2Z"/><path fill="#CCFF00" d="M24 16.5L30.8 29.2H27.2V37H20.8V29.2H17.2Z"/></svg>
+        </span>
+        <span class="font-medium text-white/80">CamoBits</span>
+      </div>
+      <a href="https://opensea.io/assets/robinhood/0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD/0" target="_blank" rel="noopener" class="text-hood hover:underline">OpenSea</a>
+    </div>
+  </footer>
+
+  <script src="app.js?v=8"></script>
 </body>
 </html>
