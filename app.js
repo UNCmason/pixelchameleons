@@ -70,92 +70,40 @@ function irisColor(id) {
   return iris;
 }
 
-/**
- * Wide X-header chameleon — drawn in 1500×500 space (long, not a square stamp).
- * Side-profile: long curly tail (left) → elongated body → head + eye (right).
- * Fills the header height; body spans most of the width.
- */
-function bannerCreatureWide(id) {
+/** Natural-proportion CamoBit (72 grid, no bg square) — uniform scale only */
+function creaturePixels(id) {
   const body = bodyColor(id);
-  const belly = accentColor(id);
   const iris = irisColor(id);
-  const outline = "#0a120c";
-  // layout anchors (px in banner space)
-  // head around x=1080, body center ~700, tail starts ~80
   return `
-  <!-- habitat ground full width -->
-  <rect x="0" y="400" width="1500" height="100" fill="#2d6b2a"/>
-  <rect x="0" y="400" width="1500" height="10" fill="#3d8c3a"/>
-  <!-- soft moss patches -->
-  <ellipse cx="200" cy="405" rx="90" ry="14" fill="#4a9e45" opacity="0.7"/>
-  <ellipse cx="700" cy="408" rx="120" ry="12" fill="#4a9e45" opacity="0.55"/>
-  <ellipse cx="1200" cy="406" rx="100" ry="13" fill="#4a9e45" opacity="0.65"/>
-
-  <!-- LONG curling tail (left half of banner) -->
-  <path d="
-    M 720 320
-    C 560 340, 480 300, 420 280
-    C 340 250, 280 300, 220 340
-    C 160 380, 100 360, 70 300
-    C 45 250, 90 210, 140 230
-    C 175 245, 160 285, 120 290
-    C 90 294, 80 270, 100 255
-  " fill="none" stroke="${outline}" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="
-    M 720 320
-    C 560 340, 480 300, 420 280
-    C 340 250, 280 300, 220 340
-    C 160 380, 100 360, 70 300
-    C 45 250, 90 210, 140 230
-    C 175 245, 160 285, 120 290
-    C 90 294, 80 270, 100 255
-  " fill="none" stroke="${body}" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- elongated body (horizontal sausage) -->
-  <ellipse cx="780" cy="300" rx="200" ry="95" fill="${outline}"/>
-  <ellipse cx="780" cy="300" rx="190" ry="86" fill="${body}"/>
-  <ellipse cx="800" cy="320" rx="140" ry="48" fill="${belly}" opacity="0.45"/>
-
-  <!-- neck / shoulders stretch toward head -->
-  <ellipse cx="960" cy="275" rx="110" ry="78" fill="${outline}"/>
-  <ellipse cx="960" cy="275" rx="100" ry="70" fill="${body}"/>
-
-  <!-- head (turret eye side-profile) -->
-  <ellipse cx="1100" cy="240" rx="95" ry="88" fill="${outline}"/>
-  <ellipse cx="1100" cy="240" rx="86" ry="80" fill="${body}"/>
-
-  <!-- crest / ridge along back -->
-  <path d="M 620 250 Q 780 200 960 215 Q 1040 200 1120 210" fill="none"
-        stroke="${outline}" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
-
-  <!-- big eye -->
-  <circle cx="1145" cy="230" r="48" fill="${iris}" stroke="${outline}" stroke-width="8"/>
-  <circle cx="1158" cy="230" r="22" fill="#111"/>
-  <circle cx="1170" cy="218" r="8" fill="#fff"/>
-
-  <!-- smile / mouth line -->
-  <path d="M 1165 275 Q 1190 290 1160 300" fill="none" stroke="${outline}" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
-
-  <!-- legs (4) along ground -->
-  <rect x="640" y="370" width="18" height="50" rx="6" fill="${outline}"/>
-  <rect x="642" y="372" width="14" height="46" rx="5" fill="${body}"/>
-  <rect x="720" y="375" width="18" height="48" rx="6" fill="${outline}"/>
-  <rect x="722" y="377" width="14" height="44" rx="5" fill="${body}"/>
-  <rect x="860" y="372" width="18" height="50" rx="6" fill="${outline}"/>
-  <rect x="862" y="374" width="14" height="46" rx="5" fill="${body}"/>
-  <rect x="940" y="375" width="18" height="48" rx="6" fill="${outline}"/>
-  <rect x="942" y="377" width="14" height="44" rx="5" fill="${body}"/>
-
-  <!-- feet -->
-  <ellipse cx="649" cy="422" rx="16" ry="7" fill="${outline}"/>
-  <ellipse cx="729" cy="424" rx="16" ry="7" fill="${outline}"/>
-  <ellipse cx="869" cy="422" rx="16" ry="7" fill="${outline}"/>
-  <ellipse cx="949" cy="424" rx="16" ry="7" fill="${outline}"/>
+  <path d="M24 50 C18 48 10 46 9 50 C8 56 14 60 18 58 C22 56 20 50 14 51 C10 52 11 57 16 57 C20 57 22 53 18 52" fill="none" stroke="${body}" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="38" cy="48" rx="13" ry="10" fill="${body}"/>
+  <ellipse cx="51" cy="42" rx="9" ry="8.5" fill="${body}"/>
+  <circle cx="54" cy="41" r="5.2" fill="${iris}" stroke="#000" stroke-width="1"/>
+  <circle cx="55" cy="41" r="2.2" fill="#111"/>
+  <circle cx="56" cy="40" r="0.8" fill="#fff"/>
+  <rect x="28" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="34" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="44" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="50" y="56" width="2" height="6" fill="${body}"/>
 `;
 }
 
+/** Tiny Robinhood-style feather (chain brand mark) */
+function rhFeatherMark(x, y, s = 1) {
+  // simple feather silhouette — green RH vibe, not official logo asset
+  return `
+  <g transform="translate(${x},${y}) scale(${s})" opacity="0.85">
+    <path d="M12 2 C18 8 20 16 16 26 C14 22 10 18 8 22 C4 14 6 6 12 2Z" fill="#00C805"/>
+    <path d="M12 6 L12 24" stroke="#0a0c08" stroke-width="1.2" stroke-opacity="0.35" fill="none"/>
+    <path d="M12 10 L18 14 M12 14 L17 18 M12 18 L15 21" stroke="#0a0c08" stroke-width="0.9" stroke-opacity="0.25" fill="none"/>
+  </g>`;
+}
+
 /**
- * X / Twitter header 1500×500 — full-bleed, long CamoBit composition.
+ * Perfect X header 1500×500:
+ * - full-bleed chameleon gradient sky + ground
+ * - CamoBit at natural proportions (no over-stretch), left safe zone
+ * - #id + RH feather bottom-right
  */
 function bannerSvg(id) {
   const bg = bgColor(id);
@@ -164,46 +112,61 @@ function bannerSvg(id) {
   const a2 = accentColor(id + 17);
   const a3 = bodyColor(id + 3);
   const uid = `b${id}`;
+  // uniform scale: 72 * 5.6 ≈ 403px tall — fits header height cleanly
+  const scale = 5.6;
+  const bitW = 72 * scale;
+  const bitH = 72 * scale;
+  // left third, vertically centered above ground (ground @ y=400)
+  const ox = 90;
+  const oy = 400 - bitH - 8;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${BANNER_W}" height="${BANNER_H}" viewBox="0 0 ${BANNER_W} ${BANNER_H}">
   <defs>
-    <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="50%">
+    <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="40%">
       <stop offset="0%" stop-color="${bg}">
-        <animate attributeName="stop-color" values="${bg};${a1};${a2};${body};${bg}" dur="12s" repeatCount="indefinite"/>
+        <animate attributeName="stop-color" values="${bg};${a1};${a2};${body};${bg}" dur="14s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="35%" stop-color="${a1}">
-        <animate attributeName="stop-color" values="${a1};${a2};${bg};${a3};${a1}" dur="14s" repeatCount="indefinite"/>
+      <stop offset="40%" stop-color="${a1}">
+        <animate attributeName="stop-color" values="${a1};${a2};${bg};${a3};${a1}" dur="16s" repeatCount="indefinite"/>
       </stop>
-      <stop offset="70%" stop-color="${a2}">
-        <animate attributeName="stop-color" values="${a2};${body};${a1};${bg};${a2}" dur="16s" repeatCount="indefinite"/>
+      <stop offset="75%" stop-color="${a2}">
+        <animate attributeName="stop-color" values="${a2};${body};${a1};${bg};${a2}" dur="18s" repeatCount="indefinite"/>
       </stop>
       <stop offset="100%" stop-color="${a3}">
-        <animate attributeName="stop-color" values="${a3};${bg};${a1};${a2};${a3}" dur="13s" repeatCount="indefinite"/>
+        <animate attributeName="stop-color" values="${a3};${bg};${a1};${a2};${a3}" dur="15s" repeatCount="indefinite"/>
       </stop>
     </linearGradient>
     <linearGradient id="${uid}v" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
-      <stop offset="55%" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.18"/>
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.06"/>
+      <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.2"/>
     </linearGradient>
-    <filter id="${uid}f"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="${uid}f"><feGaussianBlur stdDeviation="36"/></filter>
   </defs>
 
-  <!-- full canvas chameleon sky -->
   <rect width="1500" height="500" fill="url(#${uid}g)"/>
-  <circle cx="200" cy="80" r="220" fill="${a1}" opacity="0.18" filter="url(#${uid}f)"/>
-  <circle cx="900" cy="40" r="180" fill="${body}" opacity="0.14" filter="url(#${uid}f)"/>
-  <circle cx="1400" cy="200" r="260" fill="#CDFF00" opacity="0.12" filter="url(#${uid}f)"/>
+  <circle cx="280" cy="100" r="200" fill="${a1}" opacity="0.16" filter="url(#${uid}f)"/>
+  <circle cx="1000" cy="60" r="160" fill="${body}" opacity="0.12" filter="url(#${uid}f)"/>
+  <circle cx="1350" cy="220" r="200" fill="#CDFF00" opacity="0.1" filter="url(#${uid}f)"/>
   <rect width="1500" height="500" fill="url(#${uid}v)"/>
 
-  <!-- wide creature (fills header) -->
-  <g>${bannerCreatureWide(id)}</g>
+  <!-- full-width habitat floor -->
+  <rect x="0" y="400" width="1500" height="100" fill="#2d6b2a"/>
+  <rect x="0" y="400" width="1500" height="8" fill="#3d8c3a"/>
+  <ellipse cx="260" cy="404" rx="80" ry="10" fill="#4a9e45" opacity="0.55"/>
+  <ellipse cx="780" cy="406" rx="110" ry="9" fill="#4a9e45" opacity="0.4"/>
+  <ellipse cx="1250" cy="405" rx="90" ry="10" fill="#4a9e45" opacity="0.5"/>
 
-  <!-- subtle id badge bottom-right (out of avatar crop) -->
-  <rect x="1360" y="448" width="110" height="32" rx="8" fill="#0a0c08" opacity="0.28"/>
-  <text x="1415" y="470" text-anchor="middle" fill="#f0f5ec" fill-opacity="0.9"
-        font-family="ui-monospace,monospace" font-size="16" font-weight="700">#${id}</text>
+  <!-- CamoBit: natural proportions, left safe zone (clear of X avatar crop) -->
+  <g transform="translate(${ox},${oy}) scale(${scale})" shape-rendering="crispEdges">
+    ${creaturePixels(id)}
+  </g>
+
+  <!-- brand row: feather + #id (bottom-right) -->
+  ${rhFeatherMark(1395, 448, 1.15)}
+  <text x="1475" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.45"
+        font-family="ui-monospace,monospace" font-size="15" font-weight="700">#${id}</text>
 </svg>`;
 }
 
@@ -312,19 +275,53 @@ async function loadEthers() {
   return import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
 }
 
+/** Prefer EVM wallets (MetaMask / Rabby / Coinbase / OKX / Brave). Never Phantom. */
+function getEvmProvider() {
+  const eth = window.ethereum;
+  if (!eth) return null;
+
+  const isPhantom = (p) =>
+    !!(p && (p.isPhantom || p._isPhantom || p.provider?.isPhantom));
+
+  if (Array.isArray(eth.providers) && eth.providers.length) {
+    const list = eth.providers.filter((p) => !isPhantom(p));
+    const pick =
+      list.find((p) => p.isMetaMask && !p.isBraveWallet) ||
+      list.find((p) => p.isRabby) ||
+      list.find((p) => p.isCoinbaseWallet) ||
+      list.find((p) => p.isOkxWallet || p.isOKExWallet) ||
+      list.find((p) => p.isBraveWallet) ||
+      list.find((p) => p.isFrame) ||
+      list[0];
+    return pick || null;
+  }
+
+  if (isPhantom(eth)) {
+    // Phantom alone — reject so user installs an EVM wallet for RH
+    return null;
+  }
+  return eth;
+}
+
 async function ensureChain(BrowserProvider) {
-  provider = new BrowserProvider(window.ethereum);
+  const raw = getEvmProvider();
+  if (!raw) {
+    throw new Error(
+      "Need an EVM wallet for Robinhood Chain (MetaMask, Rabby, Coinbase…). Phantom is not supported."
+    );
+  }
+  provider = new BrowserProvider(raw);
   await provider.send("eth_requestAccounts", []);
   const net = await provider.getNetwork();
   if (net.chainId !== CHAIN_ID) {
     try {
-      await window.ethereum.request({
+      await raw.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: CHAIN_HEX }],
       });
     } catch (e) {
       if (e.code === 4902) {
-        await window.ethereum.request({
+        await raw.request({
           method: "wallet_addEthereumChain",
           params: [{
             chainId: CHAIN_HEX,
@@ -465,7 +462,12 @@ function downloadBanner(format) {
 }
 
 async function connectWallet() {
-  if (!window.ethereum) throw new Error("Install a wallet");
+  if (!getEvmProvider() && !window.ethereum) {
+    throw new Error("Install MetaMask or another EVM wallet (Robinhood Chain)");
+  }
+  if (!getEvmProvider()) {
+    throw new Error("Use MetaMask / Rabby / Coinbase — not Phantom (needs EVM + Robinhood)");
+  }
   const { BrowserProvider } = await loadEthers();
   await ensureChain(BrowserProvider);
   walletAddr = await signer.getAddress();

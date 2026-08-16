@@ -350,6 +350,7 @@ img { max-width: 100%; display: block; }
   border-top: 1px solid var(--line);
 }
 .footer a { color: var(--hood); }
+.footer-right { display: flex; gap: 1rem; align-items: center; }
 
 @media (min-width: 720px) {
   .banner-strip { grid-template-columns: repeat(2, 1fr); }

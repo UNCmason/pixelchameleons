@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0e0c" />
-  <meta name="description" content="CamoBits — 4444 X banners on Robinhood Chain. $0.70 mint." />
+  <meta name="description" content="CamoBits — 4444 X banners on Robinhood Chain. $0.70 mint · 5% royalty." />
+  <link rel="canonical" href="https://camobits.xyz/" />
   <title>CamoBits</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -30,7 +31,7 @@
   <main id="top">
     <section class="hero">
       <h1><span class="accent">X banners.</span> Not PFPs.</h1>
-      <p class="sub">4444 · Robinhood · $0.70</p>
+      <p class="sub">4444 · Robinhood · $0.70 · 5% royalty</p>
       <div class="hero-banner-frame">
         <img id="heroBanner" alt="" width="1500" height="500" />
       </div>
@@ -80,16 +81,20 @@
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
         <p class="mint-msg" id="mintMsg"></p>
-        <p class="hint mono"><a data-contract href="#" target="_blank" rel="noopener">contract</a></p>
+        <p class="hint">EVM wallet only · MetaMask / Rabby / Coinbase · not Phantom</p>
+        <p class="hint mono"><a data-contract href="#" target="_blank" rel="noopener">contract</a> · 5% secondary royalty → treasury</p>
       </div>
     </section>
 
     <footer class="footer">
       <span class="logo">CAMO<span>BITS</span></span>
-      <a data-contract href="#" target="_blank" rel="noopener">Contract</a>
+      <span class="footer-right">
+        <a href="https://camobits.xyz">camobits.xyz</a>
+        <a data-contract href="#" target="_blank" rel="noopener">Contract</a>
+      </span>
     </footer>
   </main>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
