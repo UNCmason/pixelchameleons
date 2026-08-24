@@ -1,4 +1,4 @@
-/* CamoBits — minimal site, owner-only banners, chameleon bg */
+/* CamoBits — one-page mint + banner lab (blinking 1/1s) */
 const CONTRACT = "0x0535234ed1a6acA7b717B8128ad10256db20f677";
 const CHAIN_ID = 4663n;
 const CHAIN_HEX = "0x1237";
@@ -11,14 +11,14 @@ const BANNER_H = 500;
 const ABI = [
   "function mint(uint256 quantity) payable",
   "function mintPriceWei() view returns (uint256)",
+  "function paidMintPriceWei() view returns (uint256)",
   "function totalMinted() view returns (uint256)",
   "function balanceOf(address) view returns (uint256)",
   "function ownerOf(uint256) view returns (address)",
+  "function FREE_SUPPLY() view returns (uint256)",
 ];
 
-let provider, signer, contract;
-let ownedIds = [];
-let walletAddr = "";
+let provider, signer, contract, ownedIds = [], walletAddr = "";
 
 function rng(tokenId, salt) {
   let h = 2166136261 >>> 0;
@@ -40,127 +40,143 @@ function bodyColor(id) {
 
 function bgColor(id) {
   const r = rng(id, 1) % 100;
-  if (r < 72) return "#CDFF00";
-  if (r < 88) return "#00C805";
-  if (r < 94) return "#1e2037";
-  return "#78e6a0";
+  if (r < 55) return "#CDFF00";
+  if (r < 75) return "#00C805";
+  if (r < 88) return "#1e2037";
+  if (r < 96) return "#78e6a0";
+  return "#12081a";
 }
 
 function accentColor(id) {
-  const colors = ["#00C805", "#32c864", "#ff64a0", "#32d2e6", "#f0be28", "#b478ff", "#CDFF00", "#965ad2"];
+  const colors = ["#00C805", "#32c864", "#ff64a0", "#32d2e6", "#f0be28", "#b478ff", "#CDFF00"];
   return colors[rng(id, 9) % colors.length];
 }
 
 function nameOf(id) {
   const specials = {
-    0: "Genesis Bit", 1: "Prime Scale", 7: "Lucky Bit", 13: "Unlucky Charm",
-    42: "Oracle Bit", 69: "Blush Boss", 88: "Double Luck", 100: "Century Scale",
-    111: "Triple One", 222: "Angelic", 333: "Inferno King", 420: "Leaf Lord",
-    555: "Galaxy Drift", 666: "Void Serpent", 777: "Jackpot Bit",
-    1111: "Quad One", 2222: "Double Angel", 3333: "Triple Inferno",
-    4200: "Mega Leaf", 4443: "Final Form",
+    0: "Genesis Bit", 1: "Prime Scale", 7: "Lucky Bit", 42: "Oracle Bit",
+    333: "Inferno King", 777: "Jackpot Bit", 4443: "Final Form",
   };
-  return specials[id] || `#${id}`;
+  return specials[id] || `CamoBit #${id}`;
 }
 
 function irisColor(id) {
-  let iris = "#ffffff";
-  if (rng(id, 4) % 10 > 7) iris = "#1a1a1a";
-  if (rng(id, 4) % 17 === 0) iris = "#ff4444";
-  return iris;
+  const r = rng(id, 4) % 20;
+  if (r === 0) return "#ff2222";
+  if (r === 1) return "#ff4444";
+  if (r < 5) return "#1a1a1a";
+  if (r < 10) return "#f0d232";
+  return "#ffffff";
+}
+
+function blinkDur(id) {
+  return (3 + (rng(id, 88) % 5)) + "." + (rng(id, 87) % 9);
+}
+
+function blinkBegin(id) {
+  return (rng(id, 89) % 20) / 10;
+}
+
+/** Square token art — downward curl + blinking eye (matches on-chain vibe) */
+function tokenArtInner(id) {
+  const bg = bgColor(id);
+  const body = bodyColor(id);
+  const iris = irisColor(id);
+  const dx = rng(id, 11) % 5;
+  const dy = rng(id, 12) % 3;
+  const tailStyle = rng(id, 13) % 3;
+  let tail;
+  if (tailStyle === 0) tail = "M28 50 C22 54 16 58 12 56 C8 54 10 50 14 51 C18 52 18 56 14 55";
+  else if (tailStyle === 1) tail = "M27 49 C20 55 14 59 10 57 C7 54 11 51 15 52 C19 53 19 57 15 56";
+  else tail = "M29 51 C23 56 17 60 13 58 C9 55 12 51 16 52 C20 53 20 58 16 57";
+
+  const ex = 54 + dx, ey = 41 - dy;
+  return `
+  <rect width="72" height="72" fill="${bg}"/>
+  <rect y="58" width="72" height="14" fill="#3d8c3a"/>
+  <path d="${tail}" fill="none" stroke="${body}" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="${38 + (dx >> 1)}" cy="${48 - dy}" rx="13" ry="10" fill="${body}"/>
+  <ellipse cx="${51 + dx}" cy="${42 - dy}" rx="9" ry="8.5" fill="${body}"/>
+  <ellipse cx="${ex}" cy="${ey}" rx="5.2" ry="5.2" fill="${iris}" stroke="#000" stroke-width="1">
+    <animate attributeName="ry" values="5.2;0.5;5.2" keyTimes="0;0.08;0.16" dur="${blinkDur(id)}s" begin="${blinkBegin(id)}s" repeatCount="indefinite"/>
+  </ellipse>
+  <circle cx="${ex + 1}" cy="${ey}" r="2.2" fill="#111"/>
+  <circle cx="${ex + 2}" cy="${ey - 1}" r="0.8" fill="#fff"/>
+  <rect x="${28 + (dx >> 1)}" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="${34 + (dx >> 1)}" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="${44 + dx}" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="${50 + dx}" y="56" width="2" height="6" fill="${body}"/>
+  <rect x="${2 + (rng(id, 77) % 8)}" y="2" width="2" height="2" fill="#000" opacity="0.15"/>
+`;
 }
 
 /**
- * Wide header CamoBit — true side-profile chameleon, feet ON the ground strip.
- * Tail curls UP tightly (not a long caterpillar). No brand logo in-frame.
+ * Banner: wide chameleon, DOWNWARD curling tail, feet ON ground, blinking eye.
  */
-function bannerCreatureWide(id) {
+function bannerSvg(id) {
+  const bg = bgColor(id);
   const body = bodyColor(id);
   const belly = accentColor(id);
   const iris = irisColor(id);
   const outline = "#0a120c";
-  // ground at y=400 in banner space after pad; creature feet land on it
-  return `
-  <rect x="0" y="400" width="1500" height="100" fill="#2d6b2a"/>
-  <rect x="0" y="400" width="1500" height="10" fill="#3d8c3a"/>
-  <ellipse cx="280" cy="405" rx="90" ry="12" fill="#4a9e45" opacity="0.55"/>
-  <ellipse cx="900" cy="407" rx="120" ry="10" fill="#4a9e45" opacity="0.4"/>
-
-  <!-- tight UP-curl tail behind hips (chameleon pose) -->
-  <path d="
-    M 620 340
-    C 560 360, 520 350, 500 310
-    C 480 270, 520 250, 555 270
-    C 580 285, 575 320, 545 325
-    C 525 328, 515 310, 530 300
-  " fill="none" stroke="${outline}" stroke-width="34" stroke-linecap="round"/>
-  <path d="
-    M 620 340
-    C 560 360, 520 350, 500 310
-    C 480 270, 520 250, 555 270
-    C 580 285, 575 320, 545 325
-    C 525 328, 515 310, 530 300
-  " fill="none" stroke="${body}" stroke-width="24" stroke-linecap="round"/>
-
-  <!-- torso seated on ground -->
-  <ellipse cx="760" cy="330" rx="150" ry="70" fill="${outline}"/>
-  <ellipse cx="760" cy="330" rx="140" ry="62" fill="${body}"/>
-  <ellipse cx="780" cy="350" rx="100" ry="32" fill="${belly}" opacity="0.4"/>
-
-  <!-- neck + head (turret eye, side profile) -->
-  <ellipse cx="920" cy="295" rx="85" ry="60" fill="${outline}"/>
-  <ellipse cx="920" cy="295" rx="76" ry="52" fill="${body}"/>
-  <ellipse cx="1040" cy="260" rx="72" ry="66" fill="${outline}"/>
-  <ellipse cx="1040" cy="260" rx="64" ry="58" fill="${body}"/>
-
-  <circle cx="1085" cy="250" r="34" fill="${iris}" stroke="${outline}" stroke-width="6"/>
-  <circle cx="1096" cy="250" r="15" fill="#111"/>
-  <circle cx="1105" cy="242" r="5" fill="#fff"/>
-
-  <!-- crest -->
-  <path d="M 640 300 Q 780 255 920 270 Q 980 255 1040 265" fill="none"
-        stroke="${outline}" stroke-width="7" opacity="0.28" stroke-linecap="round"/>
-
-  <!-- legs planted ON ground (y~400) -->
-  <rect x="680" y="380" width="14" height="28" rx="4" fill="${outline}"/>
-  <rect x="682" y="382" width="10" height="24" rx="3" fill="${body}"/>
-  <rect x="740" y="382" width="14" height="26" rx="4" fill="${outline}"/>
-  <rect x="742" y="384" width="10" height="22" rx="3" fill="${body}"/>
-  <rect x="820" y="380" width="14" height="28" rx="4" fill="${outline}"/>
-  <rect x="822" y="382" width="10" height="24" rx="3" fill="${body}"/>
-  <rect x="875" y="382" width="14" height="26" rx="4" fill="${outline}"/>
-  <rect x="877" y="384" width="10" height="22" rx="3" fill="${body}"/>
-  <ellipse cx="687" cy="408" rx="12" ry="5" fill="${outline}"/>
-  <ellipse cx="747" cy="408" rx="12" ry="5" fill="${outline}"/>
-  <ellipse cx="827" cy="408" rx="12" ry="5" fill="${outline}"/>
-  <ellipse cx="882" cy="408" rx="12" ry="5" fill="${outline}"/>
-`;
-}
-
-function bannerSvg(id) {
-  const bg = bgColor(id);
-  const body = bodyColor(id);
-  const a1 = accentColor(id);
-  const a2 = accentColor(id + 17);
-  const a3 = bodyColor(id + 3);
   const uid = `b${id}`;
+  const dur = blinkDur(id);
+  const begin = blinkBegin(id);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${BANNER_W}" height="${BANNER_H}" viewBox="0 0 ${BANNER_W} ${BANNER_H}">
   <defs>
-    <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="40%">
+    <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="50%">
       <stop offset="0%" stop-color="${bg}"/>
-      <stop offset="45%" stop-color="${a1}"/>
-      <stop offset="100%" stop-color="${a3}"/>
+      <stop offset="55%" stop-color="${belly}"/>
+      <stop offset="100%" stop-color="${body}"/>
     </linearGradient>
-    <clipPath id="${uid}c"><rect width="1500" height="500"/></clipPath>
   </defs>
-  <g clip-path="url(#${uid}c)">
-    <rect width="1500" height="500" fill="url(#${uid}g)"/>
-    <circle cx="200" cy="80" r="160" fill="${a2}" opacity="0.12"/>
-    <circle cx="1300" cy="120" r="180" fill="#CCFF00" opacity="0.1"/>
-    ${bannerCreatureWide(id)}
-  </g>
+  <rect width="1500" height="500" fill="url(#${uid}g)"/>
+  <circle cx="220" cy="90" r="160" fill="${belly}" opacity="0.12"/>
+  <circle cx="1280" cy="140" r="180" fill="#CCFF00" opacity="0.1"/>
+
+  <!-- ground -->
+  <rect x="0" y="400" width="1500" height="100" fill="#2d6b2a"/>
+  <rect x="0" y="400" width="1500" height="10" fill="#3d8c3a"/>
+
+  <!-- DOWNWARD curling tail (natural chameleon coil toward ground) -->
+  <path d="M620 340 C560 370 500 400 460 395 C420 390 430 350 470 355 C505 360 510 395 475 400 C455 403 445 385 460 375"
+        fill="none" stroke="${outline}" stroke-width="34" stroke-linecap="round"/>
+  <path d="M620 340 C560 370 500 400 460 395 C420 390 430 350 470 355 C505 360 510 395 475 400 C455 403 445 385 460 375"
+        fill="none" stroke="${body}" stroke-width="24" stroke-linecap="round"/>
+
+  <!-- body seated -->
+  <ellipse cx="780" cy="335" rx="155" ry="72" fill="${outline}"/>
+  <ellipse cx="780" cy="335" rx="145" ry="64" fill="${body}"/>
+  <ellipse cx="800" cy="355" rx="105" ry="34" fill="${belly}" opacity="0.4"/>
+
+  <ellipse cx="940" cy="300" rx="88" ry="60" fill="${outline}"/>
+  <ellipse cx="940" cy="300" rx="80" ry="52" fill="${body}"/>
+  <ellipse cx="1060" cy="265" rx="74" ry="68" fill="${outline}"/>
+  <ellipse cx="1060" cy="265" rx="66" ry="60" fill="${body}"/>
+
+  <!-- blinking eye -->
+  <ellipse cx="1105" cy="255" rx="34" ry="34" fill="${iris}" stroke="${outline}" stroke-width="6">
+    <animate attributeName="ry" values="34;3;34" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
+  </ellipse>
+  <circle cx="1116" cy="255" r="14" fill="#111"/>
+  <circle cx="1124" cy="247" r="5" fill="#fff"/>
+
+  <!-- feet ON the ground line -->
+  <rect x="700" y="385" width="14" height="24" rx="4" fill="${outline}"/>
+  <rect x="702" y="387" width="10" height="20" rx="3" fill="${body}"/>
+  <rect x="760" y="387" width="14" height="22" rx="4" fill="${outline}"/>
+  <rect x="762" y="389" width="10" height="18" rx="3" fill="${body}"/>
+  <rect x="840" y="385" width="14" height="24" rx="4" fill="${outline}"/>
+  <rect x="842" y="387" width="10" height="20" rx="3" fill="${body}"/>
+  <rect x="895" y="387" width="14" height="22" rx="4" fill="${outline}"/>
+  <rect x="897" y="389" width="10" height="18" rx="3" fill="${body}"/>
+  <ellipse cx="707" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="767" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="847" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="902" cy="408" rx="12" ry="5" fill="${outline}"/>
+
   <text x="1475" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.35"
         font-family="ui-monospace,monospace" font-size="14" font-weight="700">#${id}</text>
 </svg>`;
@@ -170,152 +186,111 @@ function svgToDataUrl(svg) {
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
-/* ---------- Chameleon canvas (extra fluid layer) ---------- */
-function initChameleonBg() {
-  const c = document.getElementById("bg-canvas");
-  if (!c) return;
-  const ctx = c.getContext("2d", { alpha: true });
-  let w = 0, h = 0;
-  const t0 = performance.now();
-  const colors = [
-    [205, 255, 0], [0, 200, 5], [50, 200, 100], [40, 170, 160],
-    [70, 140, 220], [180, 90, 210], [255, 100, 160], [240, 190, 40],
-    [205, 255, 0],
-  ];
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    w = window.innerWidth;
-    h = window.innerHeight;
-    c.width = Math.floor(w * dpr);
-    c.height = Math.floor(h * dpr);
-    c.style.width = w + "px";
-    c.style.height = h + "px";
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function mix(a, b, t) {
-    return [
-      Math.round(a[0] + (b[0] - a[0]) * t),
-      Math.round(a[1] + (b[1] - a[1]) * t),
-      Math.round(a[2] + (b[2] - a[2]) * t),
-    ];
-  }
-
-  function sample(t, off) {
-    const x = t + off;
-    const i = ((Math.floor(x) % colors.length) + colors.length) % colors.length;
-    const j = (i + 1) % colors.length;
-    const f = x - Math.floor(x);
-    const s = f * f * (3 - 2 * f);
-    return mix(colors[i], colors[j], s);
-  }
-
-  function frame(now) {
-    const t = reduce ? 0.4 : (now - t0) / 11000;
-    const ang = reduce ? 0.5 : (now - t0) / 20000;
-    ctx.clearRect(0, 0, w, h);
-
-    // multiple drifting orbs
-    for (let k = 0; k < 5; k++) {
-      const col = sample(t, k * 1.3);
-      const cx = w * (0.5 + 0.35 * Math.sin(ang * (0.7 + k * 0.2) + k));
-      const cy = h * (0.5 + 0.3 * Math.cos(ang * (0.9 + k * 0.15) + k * 1.2));
-      const r = Math.max(w, h) * (0.25 + 0.08 * k);
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-      g.addColorStop(0, `rgba(${col.join(",")},0.55)`);
-      g.addColorStop(0.55, `rgba(${col.join(",")},0.12)`);
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    if (!reduce) requestAnimationFrame(frame);
-  }
-
-  resize();
-  window.addEventListener("resize", resize);
-  requestAnimationFrame(frame);
-}
-
-/* ---------- Public preview strip (look only) ---------- */
-function buildFeatured() {
+function buildFeatures() {
   const el = document.getElementById("bannerStrip");
   if (!el) return;
-  // keep strip light — a few previews only
-  const ids = [0, 333, 777];
+  const ids = [];
+  while (ids.length < 3) {
+    const id = Math.floor(Math.random() * Math.min(MAX, 2000));
+    if (!ids.includes(id)) ids.push(id);
+  }
   el.innerHTML = "";
   ids.forEach((id) => {
-    const card = document.createElement("div");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "banner-card";
-    card.innerHTML = `<img src="${svgToDataUrl(bannerSvg(id))}" alt="" width="450" height="150" loading="lazy" />`;
+    card.innerHTML = `<img src="${svgToDataUrl(bannerSvg(id))}" alt="${nameOf(id)}" width="450" height="150" />`;
     el.appendChild(card);
   });
 }
 
-function initHeroRotate() {
+function initHero() {
   const hero = document.getElementById("heroBanner");
   if (!hero) return;
-  const ids = [0, 1, 333, 777];
+  const ids = [0, 7, 42, 333, 777, 1111];
   let i = 0;
   const tick = () => {
     hero.src = svgToDataUrl(bannerSvg(ids[i % ids.length]));
     i++;
   };
   tick();
-  setInterval(tick, 5000);
+  setInterval(tick, 4500);
 }
 
-/* ---------- Owner lab ---------- */
+function initChameleonBg() {
+  const c = document.getElementById("bg-canvas");
+  if (!c) return;
+  const ctx = c.getContext("2d", { alpha: true });
+  let w = 0, h = 0, t0 = performance.now();
+  const colors = [
+    [204, 255, 0], [0, 200, 5], [50, 200, 100], [40, 170, 160],
+    [180, 90, 210], [255, 100, 160], [240, 190, 40],
+  ];
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    w = innerWidth; h = innerHeight;
+    c.width = (w * dpr) | 0; c.height = (h * dpr) | 0;
+    c.style.width = w + "px"; c.style.height = h + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function mix(a, b, t) {
+    return a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  }
+  function sample(t, off) {
+    const x = t + off;
+    const i = ((Math.floor(x) % colors.length) + colors.length) % colors.length;
+    const f = x - Math.floor(x);
+    const s = f * f * (3 - 2 * f);
+    return mix(colors[i], colors[(i + 1) % colors.length], s);
+  }
+  function frame(now) {
+    const t = reduce ? 0.3 : (now - t0) / 12000;
+    ctx.clearRect(0, 0, w, h);
+    for (let k = 0; k < 4; k++) {
+      const col = sample(t, k * 1.4);
+      const cx = w * (0.5 + 0.3 * Math.sin((now - t0) / 18000 * (0.8 + k * 0.2) + k));
+      const cy = h * (0.45 + 0.25 * Math.cos((now - t0) / 20000 * (0.9 + k * 0.15) + k));
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.4);
+      g.addColorStop(0, `rgba(${col.join(",")},0.45)`);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  resize();
+  addEventListener("resize", resize);
+  requestAnimationFrame(frame);
+}
+
 async function loadEthers() {
   return import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
 }
 
-/** Prefer EVM wallets (MetaMask / Rabby / Coinbase / OKX / Brave). Never Phantom. */
 function getEvmProvider() {
   const eth = window.ethereum;
   if (!eth) return null;
-
-  const isPhantom = (p) =>
-    !!(p && (p.isPhantom || p._isPhantom || p.provider?.isPhantom));
-
+  const isPhantom = (p) => !!(p && (p.isPhantom || p._isPhantom));
   if (Array.isArray(eth.providers) && eth.providers.length) {
     const list = eth.providers.filter((p) => !isPhantom(p));
-    const pick =
-      list.find((p) => p.isMetaMask && !p.isBraveWallet) ||
+    return list.find((p) => p.isMetaMask && !p.isBraveWallet) ||
       list.find((p) => p.isRabby) ||
       list.find((p) => p.isCoinbaseWallet) ||
-      list.find((p) => p.isOkxWallet || p.isOKExWallet) ||
-      list.find((p) => p.isBraveWallet) ||
-      list.find((p) => p.isFrame) ||
-      list[0];
-    return pick || null;
+      list[0] || null;
   }
-
-  if (isPhantom(eth)) {
-    // Phantom alone — reject so user installs an EVM wallet for RH
-    return null;
-  }
-  return eth;
+  return isPhantom(eth) ? null : eth;
 }
 
-async function ensureChain(BrowserProvider) {
+async function ensureChain() {
   const raw = getEvmProvider();
-  if (!raw) {
-    throw new Error(
-      "Need an EVM wallet for Robinhood Chain (MetaMask, Rabby, Coinbase…). Phantom is not supported."
-    );
-  }
+  if (!raw) throw new Error("EVM wallet required (MetaMask / Rabby / Coinbase)");
+  const { BrowserProvider, Contract } = await loadEthers();
   provider = new BrowserProvider(raw);
   await provider.send("eth_requestAccounts", []);
-  const net = await provider.getNetwork();
-  if (net.chainId !== CHAIN_ID) {
+  if ((await provider.getNetwork()).chainId !== CHAIN_ID) {
     try {
-      await raw.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: CHAIN_HEX }],
-      });
+      await raw.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_HEX }] });
     } catch (e) {
       if (e.code === 4902) {
         await raw.request({
@@ -332,34 +307,24 @@ async function ensureChain(BrowserProvider) {
     }
   }
   signer = await provider.getSigner();
-  const { Contract } = await loadEthers();
   contract = new Contract(CONTRACT, ABI, signer);
 }
 
-/** Scan minted range for tokens owned by addr (fine while supply is modest). */
 async function fetchOwnedIds(addr) {
   const { JsonRpcProvider, Contract } = await loadEthers();
-  const p = new JsonRpcProvider(RPC);
-  const c = new Contract(CONTRACT, ABI, p);
+  const c = new Contract(CONTRACT, ABI, new JsonRpcProvider(RPC));
   const bal = await c.balanceOf(addr);
   if (bal === 0n) return [];
   const total = Number(await c.totalMinted());
-  if (total === 0) return [];
   const me = addr.toLowerCase();
   const owned = [];
-  const chunk = 40;
-  for (let i = 0; i < total; i += chunk) {
+  for (let i = 0; i < total; i += 40) {
     const jobs = [];
-    for (let j = i; j < Math.min(i + chunk, total); j++) {
+    for (let j = i; j < Math.min(i + 40, total); j++) {
       const id = j;
-      jobs.push(
-        c.ownerOf(id)
-          .then((o) => (o.toLowerCase() === me ? id : null))
-          .catch(() => null)
-      );
+      jobs.push(c.ownerOf(id).then((o) => (o.toLowerCase() === me ? id : null)).catch(() => null));
     }
-    const part = await Promise.all(jobs);
-    for (const x of part) if (x !== null) owned.push(x);
+    for (const x of await Promise.all(jobs)) if (x !== null) owned.push(x);
     if (owned.length >= Number(bal)) break;
   }
   return owned.sort((a, b) => a - b);
@@ -372,105 +337,80 @@ function showLabOpen() {
 
 function fillOwnedSelect() {
   const sel = document.getElementById("ownedSelect");
+  const preview = document.getElementById("bannerPreview");
+  const empty = document.getElementById("emptyMsg");
   const frame = document.getElementById("previewFrame");
+  const label = document.getElementById("bannerLabel");
   if (!sel) return;
   sel.innerHTML = "";
   if (!ownedIds.length) {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "None owned";
-    sel.appendChild(opt);
+    sel.innerHTML = "<option value=''>None</option>";
+    preview?.classList.add("hidden");
+    empty?.classList.remove("hidden");
     frame?.classList.add("empty");
-    const prev = document.getElementById("bannerPreview");
-    if (prev) {
-      prev.removeAttribute("src");
-      delete prev.dataset.svg;
-    }
-    const label = document.getElementById("bannerLabel");
     if (label) label.textContent = "";
     return;
   }
   ownedIds.forEach((id) => {
-    const opt = document.createElement("option");
-    opt.value = String(id);
-    opt.textContent = `${nameOf(id)} · #${id}`;
-    sel.appendChild(opt);
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = `${nameOf(id)} · #${id}`;
+    sel.appendChild(o);
   });
   sel.value = String(ownedIds[0]);
-  renderOwnedBanner();
+  renderLab();
 }
 
-function renderOwnedBanner() {
+function renderLab() {
   const sel = document.getElementById("ownedSelect");
   const preview = document.getElementById("bannerPreview");
-  const label = document.getElementById("bannerLabel");
+  const empty = document.getElementById("emptyMsg");
   const frame = document.getElementById("previewFrame");
-  if (!sel || !preview) return;
-  const id = parseInt(sel.value, 10);
-  if (Number.isNaN(id) || !ownedIds.includes(id)) {
+  const label = document.getElementById("bannerLabel");
+  const id = parseInt(sel?.value || "", 10);
+  if (!ownedIds.includes(id)) {
+    preview?.classList.add("hidden");
+    empty?.classList.remove("hidden");
     frame?.classList.add("empty");
     return;
   }
   const svg = bannerSvg(id);
   preview.src = svgToDataUrl(svg);
   preview.dataset.svg = svg;
+  preview.dataset.id = String(id);
+  preview.classList.remove("hidden");
+  empty?.classList.add("hidden");
   frame?.classList.remove("empty");
-  if (label) label.textContent = `${nameOf(id)} · #${id}`;
+  if (label) label.textContent = `${nameOf(id)} · 1500×500 · 1/1`;
 }
 
-function downloadBanner(format) {
-  if (!ownedIds.length) {
-    setMintMsg("Mint first — only your CamoBits", false);
-    return;
-  }
+function downloadPng() {
   const preview = document.getElementById("bannerPreview");
-  const sel = document.getElementById("ownedSelect");
-  const id = parseInt(sel?.value || "", 10);
-  if (!ownedIds.includes(id)) {
-    setMintMsg("Pick one of your CamoBits", false);
-    return;
-  }
-  const svg = preview?.dataset.svg || bannerSvg(id);
-  if (format === "svg") {
-    const blob = new Blob([svg], { type: "image/svg+xml" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `camobit-${id}-banner-1500x500.svg`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    return;
-  }
+  const id = parseInt(preview?.dataset.id || "", 10);
+  if (!ownedIds.includes(id)) return setMintMsg("Pick one of yours", false);
   const img = new Image();
   img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = BANNER_W;
-    canvas.height = BANNER_H;
-    canvas.getContext("2d").drawImage(img, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
+    const c = document.createElement("canvas");
+    c.width = BANNER_W;
+    c.height = BANNER_H;
+    c.getContext("2d").drawImage(img, 0, 0);
+    c.toBlob((b) => {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `camobit-${id}-banner-1500x500.png`;
+      a.href = URL.createObjectURL(b);
+      a.download = `camobit-${id}-1500x500.png`;
       a.click();
       URL.revokeObjectURL(a.href);
     }, "image/png");
   };
-  img.src = svgToDataUrl(svg);
+  img.src = svgToDataUrl(preview.dataset.svg || bannerSvg(id));
 }
 
 async function connectWallet() {
-  if (!getEvmProvider() && !window.ethereum) {
-    throw new Error("Install MetaMask or another EVM wallet (Robinhood Chain)");
-  }
-  if (!getEvmProvider()) {
-    throw new Error("Use MetaMask / Rabby / Coinbase — not Phantom (needs EVM + Robinhood)");
-  }
-  const { BrowserProvider } = await loadEthers();
-  await ensureChain(BrowserProvider);
+  if (!getEvmProvider()) throw new Error("EVM wallet required");
+  await ensureChain();
   walletAddr = await signer.getAddress();
-  const short = walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
-  const wl = document.getElementById("walletLabel");
-  if (wl) wl.textContent = short;
+  document.getElementById("walletLabel").textContent =
+    walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
   document.getElementById("btnMint").disabled = false;
   setMintMsg("Connected", true);
   showLabOpen();
@@ -482,18 +422,20 @@ async function connectWallet() {
 async function refreshMintStats() {
   try {
     const { JsonRpcProvider, Contract } = await loadEthers();
-    const p = new JsonRpcProvider(RPC);
-    const c = new Contract(CONTRACT, ABI, p);
+    const c = new Contract(CONTRACT, ABI, new JsonRpcProvider(RPC));
     const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
+    const m = `${minted} / ${MAX}`;
+    const p = Number(price) === 0 ? "FREE" : `${(Number(price) / 1e18).toFixed(5)} ETH`;
     const elM = document.getElementById("statMinted");
     const elP = document.getElementById("statPrice");
-    if (elM) elM.textContent = `${minted} / ${MAX}`;
-    if (elP) elP.textContent = `${(Number(price) / 1e18).toFixed(6)} ETH`;
+    const elMH = document.getElementById("statMintedHero");
+    const elPH = document.getElementById("statPriceHero");
+    if (elM) elM.textContent = m;
+    if (elP) elP.textContent = p;
+    if (elMH) elMH.textContent = minted.toString();
+    if (elPH) elPH.textContent = p;
   } catch {
-    const elM = document.getElementById("statMinted");
-    const elP = document.getElementById("statPrice");
-    if (elM && elM.textContent === "—") elM.textContent = "0 / 4444";
-    if (elP && elP.textContent === "—") elP.textContent = "0.000220 ETH";
+    /* ignore */
   }
 }
 
@@ -506,21 +448,18 @@ function setMintMsg(t, ok) {
 
 function boot() {
   initChameleonBg();
-  initHeroRotate();
-  buildFeatured();
+  initHero();
+  buildFeatures();
   refreshMintStats();
-  setInterval(refreshMintStats, 25000);
+  setInterval(refreshMintStats, 20000);
 
-  document.getElementById("ownedSelect")?.addEventListener("change", renderOwnedBanner);
-  document.getElementById("btnBannerPng")?.addEventListener("click", () => downloadBanner("png"));
-  document.getElementById("btnBannerSvg")?.addEventListener("click", () => downloadBanner("svg"));
+  document.getElementById("btnShuffle")?.addEventListener("click", buildFeatures);
+  document.getElementById("ownedSelect")?.addEventListener("change", renderLab);
+  document.getElementById("btnBannerPng")?.addEventListener("click", downloadPng);
 
   const onConnect = async () => {
-    try {
-      await connectWallet();
-    } catch (e) {
-      setMintMsg(e.shortMessage || e.message || String(e), false);
-    }
+    try { await connectWallet(); }
+    catch (e) { setMintMsg(e.shortMessage || e.message || String(e), false); }
   };
   document.getElementById("btnConnect")?.addEventListener("click", onConnect);
   document.getElementById("btnConnectLab")?.addEventListener("click", onConnect);
@@ -531,7 +470,19 @@ function boot() {
       const qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
       setMintMsg("Confirm…");
       const unit = await contract.mintPriceWei();
-      const tx = await contract.mint(qty, { value: unit * BigInt(qty) });
+      // for paid tier, need paid price * qty when past free; mintPriceWei is next-token price
+      // safer: estimate with paidMintPriceWei if available
+      let value = unit * BigInt(qty);
+      try {
+        const paid = await contract.paidMintPriceWei();
+        const minted = await contract.totalMinted();
+        let due = 0n;
+        for (let i = 0; i < qty; i++) {
+          if (Number(minted) + i >= 444) due += paid;
+        }
+        value = due;
+      } catch (_) {}
+      const tx = await contract.mint(qty, { value });
       setMintMsg("Minting…", true);
       await tx.wait();
       setMintMsg(`Minted ${qty}`, true);
@@ -544,7 +495,6 @@ function boot() {
     }
   });
 
-  // OpenSea collection / token deep-link
   const os = `https://opensea.io/assets/robinhood/${CONTRACT}/0`;
   ["openseaNav", "openseaHero", "openseaFoot"].forEach((id) => {
     const a = document.getElementById(id);

@@ -363,3 +363,12 @@ img { max-width: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) {
   .g1, .g2, .g3, .hero h1 .accent { animation: none; }
 }
+
+.page { max-width: 1100px; margin: 0 auto; }
+.eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--hood); margin: 0 0 0.75rem; }
+.lede { color: var(--muted); max-width: 34rem; line-height: 1.65; margin: 0 0 1.25rem; }
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.btn-sm { padding: 0.45rem 0.85rem; font-size: 0.78rem; }
+.hidden { display: none !important; }
+.banner-preview-frame.empty img { display: none; }
+.banner-preview-frame:not(.empty) .empty-msg { display: none; }
