@@ -1,5 +1,5 @@
 /* CamoBits — minimal site, owner-only banners, chameleon bg */
-const CONTRACT = "0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD";
+const CONTRACT = "0x0535234ed1a6acA7b717B8128ad10256db20f677";
 const CHAIN_ID = 4663n;
 const CHAIN_HEX = "0x1237";
 const RPC = "https://rpc.mainnet.chain.robinhood.com";
@@ -71,117 +71,72 @@ function irisColor(id) {
 }
 
 /**
- * Wide CamoBit for 1500×500 — tail curls UP like a real chameleon (tight spiral),
- * not stretched out the left edge. Body fills the banner length cleanly.
+ * Wide header CamoBit — true side-profile chameleon, feet ON the ground strip.
+ * Tail curls UP tightly (not a long caterpillar). No brand logo in-frame.
  */
 function bannerCreatureWide(id) {
   const body = bodyColor(id);
   const belly = accentColor(id);
   const iris = irisColor(id);
   const outline = "#0a120c";
+  // ground at y=400 in banner space after pad; creature feet land on it
   return `
-  <!-- habitat ground full local width -->
-  <rect x="0" y="360" width="1400" height="60" fill="#2d6b2a"/>
-  <rect x="0" y="360" width="1400" height="8" fill="#3d8c3a"/>
-  <ellipse cx="220" cy="364" rx="70" ry="10" fill="#4a9e45" opacity="0.65"/>
-  <ellipse cx="700" cy="366" rx="100" ry="9" fill="#4a9e45" opacity="0.5"/>
-  <ellipse cx="1150" cy="365" rx="80" ry="10" fill="#4a9e45" opacity="0.55"/>
+  <rect x="0" y="400" width="1500" height="100" fill="#2d6b2a"/>
+  <rect x="0" y="400" width="1500" height="10" fill="#3d8c3a"/>
+  <ellipse cx="280" cy="405" rx="90" ry="12" fill="#4a9e45" opacity="0.55"/>
+  <ellipse cx="900" cy="407" rx="120" ry="10" fill="#4a9e45" opacity="0.4"/>
 
-  <!-- tail: tight chameleon curl UP under/behind body (stays inside frame) -->
+  <!-- tight UP-curl tail behind hips (chameleon pose) -->
   <path d="
-    M 520 300
-    C 470 320, 430 335, 400 320
-    C 365 300, 375 255, 410 240
-    C 445 225, 480 250, 470 280
-    C 462 300, 435 305, 420 290
-    C 408 278, 418 262, 435 268
-  " fill="none" stroke="${outline}" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    M 620 340
+    C 560 360, 520 350, 500 310
+    C 480 270, 520 250, 555 270
+    C 580 285, 575 320, 545 325
+    C 525 328, 515 310, 530 300
+  " fill="none" stroke="${outline}" stroke-width="34" stroke-linecap="round"/>
   <path d="
-    M 520 300
-    C 470 320, 430 335, 400 320
-    C 365 300, 375 255, 410 240
-    C 445 225, 480 250, 470 280
-    C 462 300, 435 305, 420 290
-    C 408 278, 418 262, 435 268
-  " fill="none" stroke="${body}" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+    M 620 340
+    C 560 360, 520 350, 500 310
+    C 480 270, 520 250, 555 270
+    C 580 285, 575 320, 545 325
+    C 525 328, 515 310, 530 300
+  " fill="none" stroke="${body}" stroke-width="24" stroke-linecap="round"/>
 
-  <!-- elongated body -->
-  <ellipse cx="720" cy="275" rx="175" ry="80" fill="${outline}"/>
-  <ellipse cx="720" cy="275" rx="165" ry="72" fill="${body}"/>
-  <ellipse cx="740" cy="292" rx="120" ry="38" fill="${belly}" opacity="0.42"/>
+  <!-- torso seated on ground -->
+  <ellipse cx="760" cy="330" rx="150" ry="70" fill="${outline}"/>
+  <ellipse cx="760" cy="330" rx="140" ry="62" fill="${body}"/>
+  <ellipse cx="780" cy="350" rx="100" ry="32" fill="${belly}" opacity="0.4"/>
 
-  <!-- neck -->
-  <ellipse cx="890" cy="250" rx="92" ry="66" fill="${outline}"/>
-  <ellipse cx="890" cy="250" rx="84" ry="58" fill="${body}"/>
+  <!-- neck + head (turret eye, side profile) -->
+  <ellipse cx="920" cy="295" rx="85" ry="60" fill="${outline}"/>
+  <ellipse cx="920" cy="295" rx="76" ry="52" fill="${body}"/>
+  <ellipse cx="1040" cy="260" rx="72" ry="66" fill="${outline}"/>
+  <ellipse cx="1040" cy="260" rx="64" ry="58" fill="${body}"/>
 
-  <!-- head -->
-  <ellipse cx="1020" cy="220" rx="80" ry="74" fill="${outline}"/>
-  <ellipse cx="1020" cy="220" rx="72" ry="66" fill="${body}"/>
+  <circle cx="1085" cy="250" r="34" fill="${iris}" stroke="${outline}" stroke-width="6"/>
+  <circle cx="1096" cy="250" r="15" fill="#111"/>
+  <circle cx="1105" cy="242" r="5" fill="#fff"/>
 
-  <path d="M 580 232 Q 720 188 890 196 Q 960 184 1030 194" fill="none"
-        stroke="${outline}" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+  <!-- crest -->
+  <path d="M 640 300 Q 780 255 920 270 Q 980 255 1040 265" fill="none"
+        stroke="${outline}" stroke-width="7" opacity="0.28" stroke-linecap="round"/>
 
-  <!-- eye -->
-  <circle cx="1060" cy="210" r="38" fill="${iris}" stroke="${outline}" stroke-width="7"/>
-  <circle cx="1072" cy="210" r="17" fill="#111"/>
-  <circle cx="1082" cy="200" r="6.5" fill="#fff"/>
-
-  <path d="M 1075 248 Q 1095 260 1070 268" fill="none" stroke="${outline}" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
-
-  <!-- legs -->
-  <rect x="600" y="335" width="16" height="42" rx="5" fill="${outline}"/>
-  <rect x="602" y="337" width="12" height="38" rx="4" fill="${body}"/>
-  <rect x="670" y="338" width="16" height="40" rx="5" fill="${outline}"/>
-  <rect x="672" y="340" width="12" height="36" rx="4" fill="${body}"/>
-  <rect x="800" y="336" width="16" height="42" rx="5" fill="${outline}"/>
-  <rect x="802" y="338" width="12" height="38" rx="4" fill="${body}"/>
-  <rect x="870" y="338" width="16" height="40" rx="5" fill="${outline}"/>
-  <rect x="872" y="340" width="12" height="36" rx="4" fill="${body}"/>
-  <ellipse cx="608" cy="380" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="678" cy="381" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="808" cy="380" rx="14" ry="6" fill="${outline}"/>
-  <ellipse cx="878" cy="381" rx="14" ry="6" fill="${outline}"/>
+  <!-- legs planted ON ground (y~400) -->
+  <rect x="680" y="380" width="14" height="28" rx="4" fill="${outline}"/>
+  <rect x="682" y="382" width="10" height="24" rx="3" fill="${body}"/>
+  <rect x="740" y="382" width="14" height="26" rx="4" fill="${outline}"/>
+  <rect x="742" y="384" width="10" height="22" rx="3" fill="${body}"/>
+  <rect x="820" y="380" width="14" height="28" rx="4" fill="${outline}"/>
+  <rect x="822" y="382" width="10" height="24" rx="3" fill="${body}"/>
+  <rect x="875" y="382" width="14" height="26" rx="4" fill="${outline}"/>
+  <rect x="877" y="384" width="10" height="22" rx="3" fill="${body}"/>
+  <ellipse cx="687" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="747" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="827" cy="408" rx="12" ry="5" fill="${outline}"/>
+  <ellipse cx="882" cy="408" rx="12" ry="5" fill="${outline}"/>
 `;
 }
 
-/**
- * Exact Robinhood-style mark:
- * solid black stylized feather/quill, diagonal split (up-arrow void),
- * pointed tip bottom-left, on bright neon lime-yellow #CCFF00 square.
- */
-function robinhoodLogo(x, y, size = 56) {
-  const s = size / 48;
-  return `
-  <g transform="translate(${x},${y}) scale(${s})">
-    <rect width="48" height="48" rx="10" fill="#CCFF00"/>
-    <!-- black feather, tip oriented bottom-left -->
-    <g transform="translate(24,24) rotate(-28) translate(-24,-24)">
-      <path fill="#0a0a0a" d="
-        M24 4.5
-        C17.5 12.5 14.2 20 13.5 27.5
-        c-0.4 4.2 0.4 8 2.6 10.8
-        c2-3 4.2-6.4 6.2-10.6
-        c0.5 0.1 1.1 0.15 1.7 0.1
-        c2 4.2 4.2 7.6 6.2 10.6
-        c2.2-2.8 3-6.6 2.6-10.8
-        C32.1 20 28.8 12.5 24 4.5Z"/>
-      <!-- diagonal split: lime cut = classic RH arrow void -->
-      <path fill="#CCFF00" d="
-        M24 15
-        L31.5 29
-        H27.5
-        V38
-        H20.5
-        V29
-        H16.5
-        Z"/>
-    </g>
-  </g>`;
-}
-
-/**
- * X header 1500×500 — wide CamoBit + RH feather on hood green.
- */
 function bannerSvg(id) {
   const bg = bgColor(id);
   const body = bodyColor(id);
@@ -189,48 +144,24 @@ function bannerSvg(id) {
   const a2 = accentColor(id + 17);
   const a3 = bodyColor(id + 3);
   const uid = `b${id}`;
-  const padX = 50;
-  const padY = 40;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${BANNER_W}" height="${BANNER_H}" viewBox="0 0 ${BANNER_W} ${BANNER_H}">
   <defs>
     <linearGradient id="${uid}g" x1="0%" y1="0%" x2="100%" y2="40%">
-      <stop offset="0%" stop-color="${bg}">
-        <animate attributeName="stop-color" values="${bg};${a1};${a2};${body};${bg}" dur="12s" repeatCount="indefinite"/>
-      </stop>
-      <stop offset="40%" stop-color="${a1}">
-        <animate attributeName="stop-color" values="${a1};${a2};${bg};${a3};${a1}" dur="14s" repeatCount="indefinite"/>
-      </stop>
-      <stop offset="75%" stop-color="${a2}">
-        <animate attributeName="stop-color" values="${a2};${body};${a1};${bg};${a2}" dur="16s" repeatCount="indefinite"/>
-      </stop>
-      <stop offset="100%" stop-color="${a3}">
-        <animate attributeName="stop-color" values="${a3};${bg};${a1};${a2};${a3}" dur="13s" repeatCount="indefinite"/>
-      </stop>
+      <stop offset="0%" stop-color="${bg}"/>
+      <stop offset="45%" stop-color="${a1}"/>
+      <stop offset="100%" stop-color="${a3}"/>
     </linearGradient>
-    <linearGradient id="${uid}v" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff" stop-opacity="0.07"/>
-      <stop offset="55%" stop-color="#000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000" stop-opacity="0.18"/>
-    </linearGradient>
-    <filter id="${uid}f"><feGaussianBlur stdDeviation="36"/></filter>
-    <clipPath id="${uid}clip"><rect width="1500" height="500"/></clipPath>
+    <clipPath id="${uid}c"><rect width="1500" height="500"/></clipPath>
   </defs>
-
-  <g clip-path="url(#${uid}clip)">
+  <g clip-path="url(#${uid}c)">
     <rect width="1500" height="500" fill="url(#${uid}g)"/>
-    <circle cx="250" cy="90" r="190" fill="${a1}" opacity="0.16" filter="url(#${uid}f)"/>
-    <circle cx="980" cy="50" r="150" fill="${body}" opacity="0.12" filter="url(#${uid}f)"/>
-    <circle cx="1320" cy="200" r="200" fill="#CDFF00" opacity="0.1" filter="url(#${uid}f)"/>
-    <rect width="1500" height="500" fill="url(#${uid}v)"/>
-    <g transform="translate(${padX},${padY})">
-      ${bannerCreatureWide(id)}
-    </g>
+    <circle cx="200" cy="80" r="160" fill="${a2}" opacity="0.12"/>
+    <circle cx="1300" cy="120" r="180" fill="#CCFF00" opacity="0.1"/>
+    ${bannerCreatureWide(id)}
   </g>
-
-  ${robinhoodLogo(1416, 420, 60)}
-  <text x="1400" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.4"
+  <text x="1475" y="478" text-anchor="end" fill="#0a0c08" fill-opacity="0.35"
         font-family="ui-monospace,monospace" font-size="14" font-weight="700">#${id}</text>
 </svg>`;
 }
