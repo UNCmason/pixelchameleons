@@ -13,10 +13,13 @@ const ABI = [
   "function mintPriceWei() view returns (uint256)",
   "function paidMintPriceWei() view returns (uint256)",
   "function totalMinted() view returns (uint256)",
+  "function freeSupply() view returns (uint256)",
   "function balanceOf(address) view returns (uint256)",
   "function ownerOf(uint256) view returns (address)",
   "function FREE_SUPPLY() view returns (uint256)",
+  "function hasClaimedFreeMint(address) view returns (bool)",
 ];
+const FREE_CAP_FALLBACK = 888;
 
 let provider, signer, contract, ownedIds = [], walletAddr = "";
 
@@ -423,9 +426,14 @@ async function refreshMintStats() {
   try {
     const { JsonRpcProvider, Contract } = await loadEthers();
     const c = new Contract(CONTRACT, ABI, new JsonRpcProvider(RPC));
+    let freeCap = FREE_CAP_FALLBACK;
+    try { freeCap = Number(await c.freeSupply()); } catch (_) {}
     const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
+    const isFree = Number(price) === 0 && Number(minted) < freeCap;
     const m = `${minted} / ${MAX}`;
-    const p = Number(price) === 0 ? "FREE" : `${(Number(price) / 1e18).toFixed(5)} ETH`;
+    const p = isFree
+      ? `FREE · 1/wallet (${minted}/${freeCap})`
+      : `${(Number(price) / 1e18).toFixed(5)} ETH`;
     const elM = document.getElementById("statMinted");
     const elP = document.getElementById("statPrice");
     const elMH = document.getElementById("statMintedHero");
@@ -433,7 +441,24 @@ async function refreshMintStats() {
     if (elM) elM.textContent = m;
     if (elP) elP.textContent = p;
     if (elMH) elMH.textContent = minted.toString();
-    if (elPH) elPH.textContent = p;
+    if (elPH) elPH.textContent = isFree ? "FREE" : p;
+    const qtyEl = document.getElementById("qty");
+    if (qtyEl) {
+      if (isFree) {
+        qtyEl.value = "1";
+        qtyEl.max = "1";
+        qtyEl.disabled = true;
+      } else {
+        qtyEl.max = "99";
+        qtyEl.disabled = false;
+      }
+    }
+    const note = document.getElementById("mintNote");
+    if (note) {
+      note.textContent = isFree
+        ? `Free mint open through #${freeCap - 1}. 1 per wallet · EOA only · no prior holders.`
+        : "Paid mint · max 99 / tx · ~$0.30";
+    }
   } catch {
     /* ignore */
   }
@@ -467,31 +492,51 @@ function boot() {
   document.getElementById("btnMint")?.addEventListener("click", async () => {
     try {
       if (!contract) throw new Error("Connect first");
-      const qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
-      setMintMsg("Confirm…");
-      const unit = await contract.mintPriceWei();
-      // for paid tier, need paid price * qty when past free; mintPriceWei is next-token price
-      // safer: estimate with paidMintPriceWei if available
-      let value = unit * BigInt(qty);
-      try {
-        const paid = await contract.paidMintPriceWei();
-        const minted = await contract.totalMinted();
-        let due = 0n;
-        for (let i = 0; i < qty; i++) {
-          if (Number(minted) + i >= 444) due += paid;
+      let freeCap = FREE_CAP_FALLBACK;
+      try { freeCap = Number(await contract.freeSupply()); } catch (_) {}
+      const minted = Number(await contract.totalMinted());
+      const isFree = minted < freeCap;
+      let qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
+      if (isFree) qty = 1;
+      if (isFree) {
+        const bal = Number(await contract.balanceOf(walletAddr));
+        if (bal > 0) throw new Error("Free mint is 1 per new wallet — you already hold a CamoBit");
+        try {
+          if (await contract.hasClaimedFreeMint(walletAddr)) {
+            throw new Error("This wallet already claimed the free mint");
+          }
+        } catch (e) {
+          if (String(e.message || e).includes("already claimed") || String(e.message || e).includes("already hold")) throw e;
         }
-        value = due;
-      } catch (_) {}
+      }
+      setMintMsg("Confirm…");
+      let value = 0n;
+      if (!isFree) {
+        const paid = await contract.paidMintPriceWei();
+        value = paid * BigInt(qty);
+      } else {
+        // crossing free→paid in one tx is impossible (qty locked to 1 while free)
+        value = 0n;
+      }
       const tx = await contract.mint(qty, { value });
       setMintMsg("Minting…", true);
       await tx.wait();
-      setMintMsg(`Minted ${qty}`, true);
+      setMintMsg(isFree ? "Free mint secured · 1/1" : `Minted ${qty}`, true);
       ownedIds = await fetchOwnedIds(walletAddr);
       fillOwnedSelect();
       showLabOpen();
       await refreshMintStats();
     } catch (e) {
-      setMintMsg(e.shortMessage || e.message || String(e), false);
+      const raw = e.shortMessage || e.reason || e.message || String(e);
+      let msg = raw;
+      if (/FreeMintClaimed|already claimed|already hold/i.test(raw)) {
+        msg = "Free mint already used or wallet already holds a CamoBit";
+      } else if (/FreeMintOneOnly|quantity/i.test(raw)) {
+        msg = "Free mint is 1 per wallet";
+      } else if (/NoContracts/i.test(raw)) {
+        msg = "Contracts blocked — mint from a normal wallet";
+      }
+      setMintMsg(msg, false);
     }
   });
 

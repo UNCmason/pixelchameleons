@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -31,9 +31,9 @@
 
   <main id="top" class="page">
     <section class="hero">
-      <p class="eyebrow">4444 · 1/1 · Robinhood Chain</p>
+      <p class="eyebrow">4444 · Free to 888 · 1/wallet · Robinhood Chain</p>
       <h1>Not a PFP.<br /><span class="accent">A living banner.</span></h1>
-      <p class="lede">On-chain CamoBits for X headers. Mint, preview in the lab, download 1500×500.</p>
+      <p class="lede">On-chain CamoBits for X headers. Free mint 1 per wallet through #887 — then ~$0.30.</p>
       <div class="hero-banner-frame">
         <img id="heroBanner" alt="" width="1500" height="500" />
       </div>
@@ -46,7 +46,7 @@
         <li><strong id="statMintedHero">—</strong><span>minted</span></li>
         <li><strong id="statPriceHero">—</strong><span>price</span></li>
         <li><strong>1500×500</strong><span>X header</span></li>
-        <li><strong>99</strong><span>max / tx</span></li>
+        <li><strong>1</strong><span>free / wallet</span></li>
       </ul>
     </section>
 
@@ -89,9 +89,10 @@
         </div>
         <div class="mint-actions">
           <button type="button" class="btn secondary" id="btnConnect">Connect</button>
-          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="99" value="1" /></label>
+          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="1" value="1" /></label>
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
+        <p class="mint-note" id="mintNote">Free mint open through #887. 1 per wallet · EOA only · no prior holders.</p>
         <p class="mint-msg" id="mintMsg"></p>
       </div>
     </section>
@@ -102,6 +103,6 @@
     </footer>
   </main>
 
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
