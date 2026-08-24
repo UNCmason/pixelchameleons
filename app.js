@@ -528,7 +528,7 @@ function boot() {
   document.getElementById("btnMint")?.addEventListener("click", async () => {
     try {
       if (!contract) throw new Error("Connect first");
-      const qty = Math.max(1, Math.min(20, parseInt(document.getElementById("qty").value, 10) || 1));
+      const qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
       setMintMsg("Confirm…");
       const unit = await contract.mintPriceWei();
       const tx = await contract.mint(qty, { value: unit * BigInt(qty) });
