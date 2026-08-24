@@ -64,17 +64,16 @@
 </head>
 <body>
   <div class="card">
-    <span class="badge">ROBINHOOD CHAIN · $0.70 MINT · ON-CHAIN SVG</span>
+    <span class="badge">ROBINHOOD CHAIN · FREE TO 888 · 1/WALLET</span>
     <h1>Mint CamoBits</h1>
     <p>
       4444 pure-code 1/1s built as <strong style="color:var(--text)">X banners</strong>.
-      Pay as you mint — funds go to the collection treasury.
-      Art is on-chain SVG.
+      Free mint through #887 — 1 per new wallet (EOA only). Then ~$0.30.
     </p>
 
     <div class="stat">Contract: <strong id="contractLabel">loading…</strong></div>
     <div class="stat">Minted: <strong id="minted">—</strong> / 4444</div>
-    <div class="stat">Price / mint: <strong id="price">—</strong> ETH <span id="priceUsd">(~$0.70)</span></div>
+    <div class="stat">Price / mint: <strong id="price">—</strong> <span id="priceUsd"></span></div>
     <div class="stat">Wallet: <strong id="wallet">not connected</strong></div>
     <div class="stat">Treasury: <strong>0x76B2…5421</strong></div>
 
@@ -83,7 +82,7 @@
     </div>
     <div class="row">
       <label for="qty">Qty</label>
-      <input id="qty" type="number" min="1" max="99" value="1" />
+      <input id="qty" type="number" min="1" max="1" value="1" />
       <button type="button" id="btnMint" disabled>Mint</button>
     </div>
     <div id="msg"></div>
@@ -95,16 +94,21 @@
   </div>
 
   <script>
-    const DEFAULT_CONTRACT = "0x4314F790d6F4b48BB8699C97C0f698A95fA7F3AD";
+    const DEFAULT_CONTRACT = "0x0535234ed1a6acA7b717B8128ad10256db20f677";
     const CHAIN_ID = 4663n;
     const CHAIN_HEX = "0x1237";
     const RPC = "https://rpc.mainnet.chain.robinhood.com";
     const EXPLORER = "https://robinhoodchain.blockscout.com";
+    const FREE_CAP = 888;
 
     const ABI = [
       "function mint(uint256 quantity) payable",
       "function mintPriceWei() view returns (uint256)",
+      "function paidMintPriceWei() view returns (uint256)",
       "function totalMinted() view returns (uint256)",
+      "function freeSupply() view returns (uint256)",
+      "function balanceOf(address) view returns (uint256)",
+      "function hasClaimedFreeMint(address) view returns (bool)",
       "function treasury() view returns (address)",
     ];
 
@@ -144,19 +148,34 @@
       }
     }
 
+    function paintPrice(minted, price) {
+      const free = Number(minted) < FREE_CAP && Number(price) === 0;
+      $("minted").textContent = minted.toString();
+      if (free) {
+        $("price").textContent = "FREE";
+        $("priceUsd").textContent = `(1/wallet · ${minted}/${FREE_CAP})`;
+        $("qty").value = "1";
+        $("qty").max = "1";
+        $("qty").disabled = true;
+      } else {
+        $("price").textContent = (Number(price) / 1e18).toFixed(6) + " ETH";
+        $("priceUsd").textContent = "(~$0.30)";
+        $("qty").max = "99";
+        $("qty").disabled = false;
+      }
+    }
+
     async function refresh() {
       if (!contract) {
-        // public read without wallet
         try {
           const { JsonRpcProvider, Contract } = await import("https://cdn.jsdelivr.net/npm/ethers@6.13.4/+esm");
           const p = new JsonRpcProvider(RPC);
           const c = new Contract(contractAddr, ABI, p);
           const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
-          $("minted").textContent = minted.toString();
-          $("price").textContent = (Number(price) / 1e18).toFixed(6);
+          paintPrice(minted, price);
         } catch (_) {
-          $("minted").textContent = "0";
-          $("price").textContent = "0.000220";
+          $("minted").textContent = "—";
+          $("price").textContent = "FREE";
         }
         return;
       }
@@ -164,8 +183,7 @@
         contract.totalMinted(),
         contract.mintPriceWei(),
       ]);
-      $("minted").textContent = minted.toString();
-      $("price").textContent = (Number(price) / 1e18).toFixed(6);
+      paintPrice(minted, price);
     }
 
     $("btnConnect").onclick = async () => {
@@ -193,17 +211,38 @@
     $("btnMint").onclick = async () => {
       try {
         msg("Confirm in wallet…");
-        const qty = Math.max(1, Math.min(99, parseInt($("qty").value, 10) || 1));
-        const unit = await contract.mintPriceWei();
-        const value = unit * BigInt(qty);
+        const minted = Number(await contract.totalMinted());
+        const isFree = minted < FREE_CAP;
+        let qty = Math.max(1, Math.min(99, parseInt($("qty").value, 10) || 1));
+        if (isFree) qty = 1;
+        if (isFree) {
+          const addr = await signer.getAddress();
+          if (Number(await contract.balanceOf(addr)) > 0) {
+            throw new Error("Free mint is 1 per new wallet — you already hold a CamoBit");
+          }
+        }
+        let value = 0n;
+        if (!isFree) {
+          const paid = await contract.paidMintPriceWei();
+          value = paid * BigInt(qty);
+        }
         const tx = await contract.mint(qty, { value });
         msg("Tx sent: " + tx.hash.slice(0, 12) + "…", true);
         await tx.wait();
         await refresh();
-        msg("Minted " + qty + " CamoBit(s). Check explorer / OpenSea.", true);
+        msg(isFree ? "Free mint secured · 1/1" : ("Minted " + qty + " CamoBit(s)."), true);
       } catch (e) {
         console.error(e);
-        msg(e.shortMessage || e.message || String(e));
+        const raw = e.shortMessage || e.message || String(e);
+        if (/FreeMintClaimed|already hold|already claimed/i.test(raw)) {
+          msg("Free mint already used or wallet already holds a CamoBit");
+        } else if (/NoContracts/i.test(raw)) {
+          msg("Contracts blocked — mint from a normal wallet");
+        } else if (/FreeMintOneOnly/i.test(raw)) {
+          msg("Free mint is 1 per wallet");
+        } else {
+          msg(raw);
+        }
       }
     };
 
