@@ -21,8 +21,55 @@ const ABI = [
   "function hasClaimedFreeMint(address) view returns (bool)",
 ];
 const FREE_CAP_FALLBACK = 888;
+const TREASURY = "0x76B2c9Dfd8DCe539A6e009c0B5283c44e2D45421";
 
 let provider, signer, contract, ownedIds = [], walletAddr = "";
+
+function shortAddr(a) {
+  return a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "";
+}
+
+function setWalletUI(connected) {
+  const chip = document.getElementById("btnWalletNav");
+  const chipLabel = document.getElementById("walletChipLabel");
+  const statusBtn = document.getElementById("btnConnect");
+  const statusText = document.getElementById("walletStatusText");
+  const disconnect = document.getElementById("btnDisconnect");
+  const mintBtn = document.getElementById("btnMint");
+  const labBtn = document.getElementById("btnConnectLab");
+
+  if (connected && walletAddr) {
+    chip?.classList.add("on");
+    statusBtn?.classList.add("on");
+    if (chipLabel) chipLabel.textContent = shortAddr(walletAddr);
+    if (statusText) statusText.textContent = `Connected · ${shortAddr(walletAddr)}`;
+    disconnect?.classList.remove("hidden");
+    if (mintBtn) mintBtn.disabled = false;
+    if (labBtn) labBtn.textContent = shortAddr(walletAddr);
+  } else {
+    chip?.classList.remove("on");
+    statusBtn?.classList.remove("on");
+    if (chipLabel) chipLabel.textContent = "Connect";
+    if (statusText) statusText.textContent = "Not connected · tap to connect";
+    disconnect?.classList.add("hidden");
+    if (mintBtn) {
+      mintBtn.disabled = true;
+      mintBtn.textContent = "Mint";
+    }
+    if (labBtn) labBtn.textContent = "Connect wallet";
+  }
+}
+
+function disconnectWallet() {
+  provider = signer = contract = null;
+  walletAddr = "";
+  ownedIds = [];
+  setWalletUI(false);
+  document.getElementById("labOpen")?.classList.add("hidden");
+  document.getElementById("labLocked")?.classList.remove("hidden");
+  setMintMsg("Disconnected", true);
+  refreshMintStats();
+}
 
 function rng(tokenId, salt) {
   let h = 2166136261 >>> 0;
@@ -432,14 +479,22 @@ async function connectWallet() {
   if (!getEvmProvider()) throw new Error("EVM wallet required");
   await ensureChain();
   walletAddr = await signer.getAddress();
-  const btn = document.getElementById("btnConnect");
-  if (btn) btn.textContent = walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
-  document.getElementById("btnMint").disabled = false;
+  setWalletUI(true);
   setMintMsg("Connected", true);
   showLabOpen();
   ownedIds = await fetchOwnedIds(walletAddr);
   fillOwnedSelect();
   await refreshMintStats();
+}
+
+async function trySilentConnect() {
+  try {
+    const raw = getEvmProvider();
+    if (!raw) return;
+    const accounts = await raw.request({ method: "eth_accounts" });
+    if (!accounts?.length) return;
+    await connectWallet();
+  } catch (_) { /* ignore */ }
 }
 
 async function walletFreeEligible(c, addr, freeCap, minted) {
@@ -505,30 +560,47 @@ function boot() {
   initChameleonBg();
   initHero();
   buildFeatures();
+  setWalletUI(false);
   refreshMintStats();
   setInterval(refreshMintStats, 20000);
+  trySilentConnect();
 
   document.getElementById("btnShuffle")?.addEventListener("click", buildFeatures);
   document.getElementById("ownedSelect")?.addEventListener("change", renderLab);
   document.getElementById("btnBannerPng")?.addEventListener("click", downloadPng);
 
   const onConnect = async () => {
+    if (walletAddr) return; // already connected — use Disconnect
     try { await connectWallet(); }
     catch (e) { setMintMsg(e.shortMessage || e.message || String(e), false); }
   };
   document.getElementById("btnConnect")?.addEventListener("click", onConnect);
   document.getElementById("btnConnectLab")?.addEventListener("click", onConnect);
+  document.getElementById("btnWalletNav")?.addEventListener("click", async () => {
+    if (walletAddr) disconnectWallet();
+    else {
+      try { await connectWallet(); }
+      catch (e) { setMintMsg(e.shortMessage || e.message || String(e), false); }
+    }
+  });
+  document.getElementById("btnDisconnect")?.addEventListener("click", () => disconnectWallet());
+
+  const raw = getEvmProvider();
+  raw?.on?.("accountsChanged", (accs) => {
+    if (!accs?.length) disconnectWallet();
+    else connectWallet().catch(() => disconnectWallet());
+  });
 
   document.getElementById("btnMint")?.addEventListener("click", async () => {
     try {
-      if (!contract) throw new Error("Connect first");
+      if (!contract || !walletAddr) throw new Error("Tap to connect first");
       let freeCap = FREE_CAP_FALLBACK;
       try { freeCap = Number(await contract.freeSupply()); } catch (_) {}
       const minted = Number(await contract.totalMinted());
       const eligible = await walletFreeEligible(contract, walletAddr, freeCap, minted);
       let qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
       if (eligible) qty = 1;
-      setMintMsg("Confirm…");
+      setMintMsg("Confirm in wallet…");
       let value = 0n;
       try {
         value = await contract.quoteMint(walletAddr, qty);
@@ -541,17 +613,17 @@ function boot() {
       const tx = await contract.mint(qty, { value });
       setMintMsg("Minting…", true);
       await tx.wait();
-      setMintMsg(eligible ? "Free mint secured" : `Minted ${qty}`, true);
+      setMintMsg((eligible ? "Free mint secured" : `Minted ${qty}`) + " · tap Disconnect anytime", true);
       ownedIds = await fetchOwnedIds(walletAddr);
       fillOwnedSelect();
       showLabOpen();
       await refreshMintStats();
     } catch (e) {
-      const raw = e.shortMessage || e.reason || e.message || String(e);
-      let msg = raw;
-      if (/FreeMintOneOnly/i.test(raw)) msg = "Free is 1 — set qty to 1, or pay for more";
-      else if (/NoContracts/i.test(raw)) msg = "Use a normal wallet";
-      else if (/WrongPayment|insufficient/i.test(raw)) msg = "Add a bit more ETH for mint + gas";
+      const rawMsg = e.shortMessage || e.reason || e.message || String(e);
+      let msg = rawMsg;
+      if (/FreeMintOneOnly/i.test(rawMsg)) msg = "Free is 1 — set qty to 1, or pay for more";
+      else if (/NoContracts/i.test(rawMsg)) msg = "Use a normal wallet";
+      else if (/WrongPayment|insufficient/i.test(rawMsg)) msg = "Add a bit more ETH for mint + gas";
       setMintMsg(msg, false);
     }
   });

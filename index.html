@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0a" />
-  <meta name="description" content="CamoBits — 4444 on-chain X banners. Robinhood Chain." />
+  <meta name="description" content="CamoBits — an experimental banner experience on Robinhood Chain." />
   <link rel="canonical" href="https://camobits.xyz/" />
   <title>CamoBits</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=16" />
+  <link rel="stylesheet" href="styles.css?v=17" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -26,11 +26,16 @@
       <a href="#mint">Mint</a>
       <a href="#lab">Lab</a>
       <a id="openseaNav" href="#" target="_blank" rel="noopener">OpenSea</a>
+      <button type="button" class="wallet-chip" id="btnWalletNav" aria-label="Wallet">
+        <span class="dot" id="walletDot"></span>
+        <span id="walletChipLabel">Connect</span>
+      </button>
     </nav>
   </header>
 
   <main id="top" class="page">
     <section class="hero">
+      <p class="hero-tag">An experimental banner experience on Robinhood Chain</p>
       <h1><span class="accent">Living banner</span></h1>
       <div class="hero-banner-frame">
         <img id="heroBanner" alt="" width="1500" height="500" />
@@ -59,8 +64,8 @@
       <div class="section-head"><h2>Lab</h2></div>
       <div class="lab-box">
         <div class="lab-locked" id="labLocked">
-          <p>Connect to download yours.</p>
-          <button type="button" class="btn secondary" id="btnConnectLab">Connect</button>
+          <p>Tap connect to load yours.</p>
+          <button type="button" class="btn secondary" id="btnConnectLab">Connect wallet</button>
         </div>
         <div class="lab-open hidden" id="labOpen">
           <div class="lab-controls">
@@ -79,9 +84,15 @@
     <section class="section mint-sec" id="mint">
       <div class="section-head"><h2>Mint</h2></div>
       <div class="mint-card">
+        <div class="wallet-row">
+          <button type="button" class="wallet-status" id="btnConnect">
+            <span class="dot" id="mintDot"></span>
+            <span id="walletStatusText">Not connected · tap to connect</span>
+          </button>
+          <button type="button" class="btn-text hidden" id="btnDisconnect">Disconnect</button>
+        </div>
         <p class="mint-line"><span id="statMinted">—</span> minted</p>
         <div class="mint-actions">
-          <button type="button" class="btn secondary" id="btnConnect">Connect</button>
           <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="99" value="1" inputmode="numeric" /></label>
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
@@ -91,11 +102,17 @@
     </section>
 
     <footer class="footer">
-      <span class="logo">CAMO<span>BITS</span></span>
+      <div class="foot-left">
+        <span class="logo">CAMO<span>BITS</span></span>
+        <p class="treasury-line" title="Treasury">
+          treasury
+          <a id="treasuryLink" href="https://robinhoodchain.blockscout.com/address/0x76B2c9Dfd8DCe539A6e009c0B5283c44e2D45421" target="_blank" rel="noopener">0x76B2…5421</a>
+        </p>
+      </div>
       <a id="openseaFoot" href="#" target="_blank" rel="noopener">OpenSea</a>
     </footer>
   </main>
 
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>

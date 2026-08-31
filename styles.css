@@ -111,14 +111,59 @@ img { max-width: 100%; display: block; }
 }
 .logo { font-weight: 700; letter-spacing: 0.08em; font-size: 0.9rem; }
 .logo span { color: var(--hood); }
-.nav-links { display: flex; gap: 1.25rem; font-size: 0.85rem; color: var(--muted); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
 .nav-links a:hover { color: var(--hood); }
+
+.wallet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.25rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.25);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 32px;
+}
+.wallet-chip:hover { border-color: var(--hood); color: var(--hood); }
+.wallet-chip.on {
+  border-color: rgba(205, 255, 0, 0.45);
+  color: var(--hood);
+}
+.wallet-chip .dot,
+.wallet-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #666;
+  flex-shrink: 0;
+}
+.wallet-chip.on .dot,
+.wallet-status.on .dot { background: var(--hood); box-shadow: 0 0 8px rgba(205,255,0,0.55); }
 
 .hero {
   max-width: min(1280px, 100%);
   margin: 0 auto;
   padding: 1.5rem 1rem 1.25rem;
   text-align: center;
+}
+.hero-tag {
+  margin: 0 auto 0.85rem;
+  max-width: 28rem;
+  font-size: clamp(0.72rem, 2.4vw, 0.84rem);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
 .hero h1 {
   font-size: clamp(2.1rem, 8vw, 4rem);
@@ -315,6 +360,47 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 
+.wallet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.wallet-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  min-height: 40px;
+  padding: 0.45rem 0.7rem;
+  border-radius: 10px;
+  border: 1px dashed var(--line);
+  background: rgba(0,0,0,0.2);
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+}
+.wallet-status:hover { border-color: rgba(205,255,0,0.4); color: var(--text); }
+.wallet-status.on {
+  border-style: solid;
+  border-color: rgba(205,255,0,0.35);
+  color: var(--text);
+}
+.btn-text {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+.btn-text:hover { color: var(--hood); }
+
 .mint-line {
   margin: 0 0 0.85rem;
   font-size: 0.85rem;
@@ -364,16 +450,21 @@ img { max-width: 100%; display: block; }
 .mint-msg.err { color: #ff6b6b; }
 
 @media (max-width: 520px) {
-  .nav-links { gap: 0.85rem; font-size: 0.8rem; }
+  .nav { padding: 0 0.65rem; }
+  .nav-links { gap: 0.65rem; font-size: 0.75rem; }
+  .wallet-chip { padding: 0.3rem 0.55rem; font-size: 0.68rem; }
   .hero { padding: 1.15rem 0.75rem 1rem; }
+  .hero-tag { margin-bottom: 0.7rem; padding: 0 0.25rem; }
   .hero h1 { font-size: clamp(1.85rem, 11vw, 2.6rem); margin-bottom: 0.85rem; }
   .hero-banner-frame { border-radius: 12px; }
   .hero-cta .btn { min-height: 44px; flex: 1 1 40%; }
   .stat-strip { gap: 1rem; }
   .section { padding: 1.25rem 0.75rem; }
+  .wallet-row { flex-wrap: wrap; }
   .mint-actions { flex-direction: column; }
   .mint-actions .btn, .qty-lab { width: 100%; justify-content: center; }
   .qty-lab { justify-content: center; }
+  .footer { flex-wrap: wrap; align-items: flex-start; }
 }
 .hint { font-size: 0.72rem; color: var(--muted); margin: 0.65rem 0 0; }
 .hint a { color: var(--hood); }
@@ -385,12 +476,27 @@ img { max-width: 100%; display: block; }
   padding: 2rem 1rem 2.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
+  gap: 1rem;
   font-size: 0.8rem;
   color: var(--muted);
   border-top: 1px solid var(--line);
 }
 .footer a { color: var(--hood); }
+.foot-left { display: flex; flex-direction: column; gap: 0.35rem; }
+.treasury-line {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: #6a7f72;
+  opacity: 0.85;
+}
+.treasury-line a {
+  color: #7f9588;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+.treasury-line a:hover { color: var(--hood); }
 
 @media (min-width: 720px) {
   .banner-strip { grid-template-columns: repeat(2, 1fr); }
