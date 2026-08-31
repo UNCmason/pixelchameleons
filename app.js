@@ -475,8 +475,8 @@ async function refreshMintStats() {
     const note = document.getElementById("mintNote");
     if (note) {
       note.textContent = isFree
-        ? `Free mint open through #${freeCap - 1}. 1 per wallet · EOA only · no prior holders.`
-        : "Paid mint · max 99 / tx · ~$0.30";
+        ? `Free to #${freeCap - 1} · 1 / wallet`
+        : `~$0.30 · max 99 / tx`;
     }
   } catch {
     /* ignore */

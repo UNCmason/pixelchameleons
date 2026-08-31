@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0a" />
-  <meta name="description" content="CamoBits — 4444 unique 1/1 on-chain X banners. Robinhood Chain." />
+  <meta name="description" content="CamoBits — 4444 on-chain X banners. Robinhood Chain." />
   <link rel="canonical" href="https://camobits.xyz/" />
   <title>CamoBits</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=14" />
+  <link rel="stylesheet" href="styles.css?v=15" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -24,56 +24,53 @@
     <a class="logo" href="#top">CAMO<span>BITS</span></a>
     <nav class="nav-links">
       <a href="#mint">Mint</a>
-      <a href="#lab">Banner Lab</a>
+      <a href="#lab">Lab</a>
       <a id="openseaNav" href="#" target="_blank" rel="noopener">OpenSea</a>
     </nav>
   </header>
 
   <main id="top" class="page">
     <section class="hero">
-      <p class="eyebrow">4444 · Free to 888 · 1/wallet · Robinhood Chain</p>
-      <h1>Not a PFP.<br /><span class="accent">A living banner.</span></h1>
-      <p class="lede">On-chain CamoBits for X headers. Free mint 1 per wallet through #887 — then ~$0.30.</p>
+      <h1><span class="accent">Living banner</span></h1>
       <div class="hero-banner-frame">
         <img id="heroBanner" alt="" width="1500" height="500" />
       </div>
       <div class="hero-cta">
         <a class="btn primary" href="#mint">Mint</a>
-        <a class="btn ghost" href="#lab">Banner Lab</a>
+        <a class="btn ghost" href="#lab">Lab</a>
         <a class="btn ghost" id="openseaHero" href="#" target="_blank" rel="noopener">OpenSea</a>
       </div>
       <ul class="stat-strip">
         <li><strong id="statMintedHero">—</strong><span>minted</span></li>
         <li><strong id="statPriceHero">—</strong><span>price</span></li>
-        <li><strong>1500×500</strong><span>X header</span></li>
-        <li><strong>1</strong><span>free / wallet</span></li>
+        <li><strong>1500×500</strong><span>header</span></li>
       </ul>
     </section>
 
     <section class="section" id="gallery">
       <div class="section-head">
-        <h2>Live bits</h2>
+        <h2>Gallery</h2>
         <button type="button" class="btn ghost btn-sm" id="btnShuffle">Shuffle</button>
       </div>
       <div class="banner-strip" id="bannerStrip"></div>
     </section>
 
     <section class="section" id="lab">
-      <div class="section-head"><h2>Banner Lab</h2></div>
+      <div class="section-head"><h2>Lab</h2></div>
       <div class="lab-box">
         <div class="lab-locked" id="labLocked">
-          <p>Connect to load <strong>your</strong> CamoBit into a 1500×500 frame.</p>
+          <p>Connect to download yours.</p>
           <button type="button" class="btn secondary" id="btnConnectLab">Connect</button>
         </div>
         <div class="lab-open hidden" id="labOpen">
           <div class="lab-controls">
             <select id="ownedSelect" aria-label="Your CamoBits"></select>
-            <button type="button" class="btn primary" id="btnBannerPng">Download PNG</button>
+            <button type="button" class="btn primary" id="btnBannerPng">PNG</button>
           </div>
           <p class="banner-label" id="bannerLabel"></p>
           <div class="banner-preview-frame empty" id="previewFrame">
             <img id="bannerPreview" alt="" width="1500" height="500" />
-            <p class="empty-msg" id="emptyMsg">No CamoBits yet</p>
+            <p class="empty-msg" id="emptyMsg">None yet</p>
           </div>
         </div>
       </div>
@@ -92,7 +89,7 @@
           <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="1" value="1" /></label>
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
-        <p class="mint-note" id="mintNote">Free mint open through #887. 1 per wallet · EOA only · no prior holders.</p>
+        <p class="mint-note" id="mintNote">Free to #887 · 1 / wallet</p>
         <p class="mint-msg" id="mintMsg"></p>
       </div>
     </section>
@@ -103,6 +100,6 @@
     </footer>
   </main>
 
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
