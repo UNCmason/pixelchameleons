@@ -102,19 +102,13 @@ function tokenArtInner(id) {
   let critter;
   if (pixel) {
     const y0 = 38 - dy;
-    const y1 = 41 - dy;
     critter = `
   <rect x="${26 + ox}" y="${40 - dy}" width="24" height="18" fill="${body}"/>
-  <rect x="${28 + ox}" y="${38 - dy}" width="20" height="4" fill="${body}"/>
-  <rect x="${30 + ox}" y="${52 - dy}" width="16" height="4" fill="${body}"/>
   <rect x="${44 + dx}" y="${34 - dy}" width="16" height="16" fill="${body}"/>
-  <rect x="${46 + dx}" y="${32 - dy}" width="12" height="4" fill="${body}"/>
   <rect x="${50 + dx}" y="${y0}" width="10" height="8" fill="${iris}" stroke="#000" stroke-width="1">
     <animate attributeName="height" values="8;1;8" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
-    <animate attributeName="y" values="${y0};${y1};${y0}" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
   </rect>
-  <rect x="${53 + dx}" y="${40 - dy}" width="3" height="3" fill="#111"/>
-  <rect x="${55 + dx}" y="${39 - dy}" width="1" height="1" fill="#fff"/>`;
+  <rect x="${53 + dx}" y="${40 - dy}" width="3" height="3" fill="#111"/>`;
   } else {
     critter = `
   <ellipse cx="${38 + ox}" cy="${48 - dy}" rx="13" ry="10" fill="${body}"/>
