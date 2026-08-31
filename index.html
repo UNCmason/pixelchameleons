@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="styles.css?v=16" />
 </head>
 <body>
   <div class="bg-layers" aria-hidden="true">
@@ -79,17 +79,13 @@
     <section class="section mint-sec" id="mint">
       <div class="section-head"><h2>Mint</h2></div>
       <div class="mint-card">
-        <div class="mint-stats">
-          <div><span class="k">Minted</span><strong id="statMinted">—</strong></div>
-          <div><span class="k">Price</span><strong id="statPrice">—</strong></div>
-          <div><span class="k">Wallet</span><strong id="walletLabel">—</strong></div>
-        </div>
+        <p class="mint-line"><span id="statMinted">—</span> minted</p>
         <div class="mint-actions">
           <button type="button" class="btn secondary" id="btnConnect">Connect</button>
-          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="1" value="1" /></label>
+          <label class="qty-lab">Qty <input id="qty" type="number" min="1" max="99" value="1" inputmode="numeric" /></label>
           <button type="button" class="btn primary" id="btnMint" disabled>Mint</button>
         </div>
-        <p class="mint-note" id="mintNote">Free to #887 · 1 / wallet</p>
+        <p class="mint-note" id="mintNote">1 free · then ~¢30 each</p>
         <p class="mint-msg" id="mintMsg"></p>
       </div>
     </section>
@@ -100,6 +96,6 @@
     </footer>
   </main>
 
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

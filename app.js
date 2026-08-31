@@ -12,6 +12,7 @@ const ABI = [
   "function mint(uint256 quantity) payable",
   "function mintPriceWei() view returns (uint256)",
   "function paidMintPriceWei() view returns (uint256)",
+  "function quoteMint(address minter, uint256 quantity) view returns (uint256)",
   "function totalMinted() view returns (uint256)",
   "function freeSupply() view returns (uint256)",
   "function balanceOf(address) view returns (uint256)",
@@ -431,8 +432,8 @@ async function connectWallet() {
   if (!getEvmProvider()) throw new Error("EVM wallet required");
   await ensureChain();
   walletAddr = await signer.getAddress();
-  document.getElementById("walletLabel").textContent =
-    walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
+  const btn = document.getElementById("btnConnect");
+  if (btn) btn.textContent = walletAddr.slice(0, 6) + "…" + walletAddr.slice(-4);
   document.getElementById("btnMint").disabled = false;
   setMintMsg("Connected", true);
   showLabOpen();
@@ -441,29 +442,35 @@ async function connectWallet() {
   await refreshMintStats();
 }
 
+async function walletFreeEligible(c, addr, freeCap, minted) {
+  if (Number(minted) >= freeCap || !addr) return false;
+  try {
+    if (Number(await c.balanceOf(addr)) > 0) return false;
+    if (await c.hasClaimedFreeMint(addr)) return false;
+  } catch (_) {
+    return Number(minted) < freeCap;
+  }
+  return true;
+}
+
 async function refreshMintStats() {
   try {
     const { JsonRpcProvider, Contract } = await loadEthers();
     const c = new Contract(CONTRACT, ABI, new JsonRpcProvider(RPC));
     let freeCap = FREE_CAP_FALLBACK;
     try { freeCap = Number(await c.freeSupply()); } catch (_) {}
-    const [minted, price] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
-    const isFree = Number(price) === 0 && Number(minted) < freeCap;
-    const m = `${minted} / ${MAX}`;
-    const p = isFree
-      ? `FREE · 1/wallet (${minted}/${freeCap})`
-      : `${(Number(price) / 1e18).toFixed(5)} ETH`;
+    const [minted, nextPrice] = await Promise.all([c.totalMinted(), c.mintPriceWei()]);
+    const freeOpen = Number(nextPrice) === 0 && Number(minted) < freeCap;
+    const eligible = await walletFreeEligible(c, walletAddr, freeCap, minted);
     const elM = document.getElementById("statMinted");
-    const elP = document.getElementById("statPrice");
     const elMH = document.getElementById("statMintedHero");
     const elPH = document.getElementById("statPriceHero");
-    if (elM) elM.textContent = m;
-    if (elP) elP.textContent = p;
+    if (elM) elM.textContent = `${minted} / ${MAX}`;
     if (elMH) elMH.textContent = minted.toString();
-    if (elPH) elPH.textContent = isFree ? "FREE" : p;
+    if (elPH) elPH.textContent = freeOpen ? "1 free" : "~¢30";
     const qtyEl = document.getElementById("qty");
     if (qtyEl) {
-      if (isFree) {
+      if (eligible) {
         qtyEl.value = "1";
         qtyEl.max = "1";
         qtyEl.disabled = true;
@@ -474,9 +481,13 @@ async function refreshMintStats() {
     }
     const note = document.getElementById("mintNote");
     if (note) {
-      note.textContent = isFree
-        ? `Free to #${freeCap - 1} · 1 / wallet`
-        : `~$0.30 · max 99 / tx`;
+      if (eligible) note.textContent = "1 free · then ~¢30 each";
+      else if (freeOpen) note.textContent = "More · ~¢30 each";
+      else note.textContent = "~¢30 each";
+    }
+    const mintBtn = document.getElementById("btnMint");
+    if (mintBtn && !mintBtn.disabled) {
+      mintBtn.textContent = eligible ? "Mint free" : "Mint";
     }
   } catch {
     /* ignore */
@@ -514,33 +525,23 @@ function boot() {
       let freeCap = FREE_CAP_FALLBACK;
       try { freeCap = Number(await contract.freeSupply()); } catch (_) {}
       const minted = Number(await contract.totalMinted());
-      const isFree = minted < freeCap;
+      const eligible = await walletFreeEligible(contract, walletAddr, freeCap, minted);
       let qty = Math.max(1, Math.min(99, parseInt(document.getElementById("qty").value, 10) || 1));
-      if (isFree) qty = 1;
-      if (isFree) {
-        const bal = Number(await contract.balanceOf(walletAddr));
-        if (bal > 0) throw new Error("Free mint is 1 per new wallet — you already hold a CamoBit");
-        try {
-          if (await contract.hasClaimedFreeMint(walletAddr)) {
-            throw new Error("This wallet already claimed the free mint");
-          }
-        } catch (e) {
-          if (String(e.message || e).includes("already claimed") || String(e.message || e).includes("already hold")) throw e;
-        }
-      }
+      if (eligible) qty = 1;
       setMintMsg("Confirm…");
       let value = 0n;
-      if (!isFree) {
-        const paid = await contract.paidMintPriceWei();
-        value = paid * BigInt(qty);
-      } else {
-        // crossing free→paid in one tx is impossible (qty locked to 1 while free)
-        value = 0n;
+      try {
+        value = await contract.quoteMint(walletAddr, qty);
+      } catch (_) {
+        if (!eligible) {
+          const paid = await contract.paidMintPriceWei();
+          value = paid * BigInt(qty);
+        }
       }
       const tx = await contract.mint(qty, { value });
       setMintMsg("Minting…", true);
       await tx.wait();
-      setMintMsg(isFree ? "Free mint secured · 1/1" : `Minted ${qty}`, true);
+      setMintMsg(eligible ? "Free mint secured" : `Minted ${qty}`, true);
       ownedIds = await fetchOwnedIds(walletAddr);
       fillOwnedSelect();
       showLabOpen();
@@ -548,13 +549,9 @@ function boot() {
     } catch (e) {
       const raw = e.shortMessage || e.reason || e.message || String(e);
       let msg = raw;
-      if (/FreeMintClaimed|already claimed|already hold/i.test(raw)) {
-        msg = "Free mint already used or wallet already holds a CamoBit";
-      } else if (/FreeMintOneOnly|quantity/i.test(raw)) {
-        msg = "Free mint is 1 per wallet";
-      } else if (/NoContracts/i.test(raw)) {
-        msg = "Contracts blocked — mint from a normal wallet";
-      }
+      if (/FreeMintOneOnly/i.test(raw)) msg = "Free is 1 — set qty to 1, or pay for more";
+      else if (/NoContracts/i.test(raw)) msg = "Use a normal wallet";
+      else if (/WrongPayment|insufficient/i.test(raw)) msg = "Add a bit more ETH for mint + gas";
       setMintMsg(msg, false);
     }
   });

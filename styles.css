@@ -315,43 +315,66 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 
-.mint-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 0.9rem;
-}
-.mint-stats .k {
-  display: block;
-  font-size: 0.68rem;
+.mint-line {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
   color: var(--muted);
-  margin-bottom: 0.15rem;
 }
-.mint-stats strong { font-size: 0.82rem; word-break: break-all; }
+.mint-line span { color: var(--text); font-weight: 600; }
 .mint-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  align-items: center;
+  align-items: stretch;
 }
+.mint-actions .btn {
+  min-height: 44px;
+  padding: 0.75rem 1.05rem;
+  flex: 1 1 auto;
+}
+.mint-actions .btn.primary { flex: 1 1 8rem; }
 .qty-lab {
   font-size: 0.8rem;
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  padding: 0 0.35rem;
+  min-height: 44px;
 }
 .qty-lab input {
-  width: 3.5rem;
+  width: 3.75rem;
+  min-height: 44px;
   background: rgba(0,0,0,0.35);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.45rem;
+  border-radius: 10px;
+  padding: 0.55rem;
+  text-align: center;
+  font-size: 1rem;
 }
-.mint-note { font-size: 0.72rem; margin: 0.55rem 0 0; color: var(--muted, #8a8a8a); line-height: 1.35; }
-.mint-msg { font-size: 0.78rem; margin: 0.45rem 0 0; min-height: 1.1em; }
+.mint-note {
+  font-size: 0.78rem;
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  line-height: 1.35;
+  text-align: center;
+}
+.mint-msg { font-size: 0.78rem; margin: 0.45rem 0 0; min-height: 1.1em; text-align: center; }
 .mint-msg.ok { color: var(--hood); }
 .mint-msg.err { color: #ff6b6b; }
+
+@media (max-width: 520px) {
+  .nav-links { gap: 0.85rem; font-size: 0.8rem; }
+  .hero { padding: 1.15rem 0.75rem 1rem; }
+  .hero h1 { font-size: clamp(1.85rem, 11vw, 2.6rem); margin-bottom: 0.85rem; }
+  .hero-banner-frame { border-radius: 12px; }
+  .hero-cta .btn { min-height: 44px; flex: 1 1 40%; }
+  .stat-strip { gap: 1rem; }
+  .section { padding: 1.25rem 0.75rem; }
+  .mint-actions { flex-direction: column; }
+  .mint-actions .btn, .qty-lab { width: 100%; justify-content: center; }
+  .qty-lab { justify-content: center; }
+}
 .hint { font-size: 0.72rem; color: var(--muted); margin: 0.65rem 0 0; }
 .hint a { color: var(--hood); }
 .mono { font-variant-numeric: tabular-nums; }
