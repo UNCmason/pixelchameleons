@@ -80,35 +80,60 @@ function blinkBegin(id) {
   return (rng(id, 89) % 20) / 10;
 }
 
-/** Square token art — downward curl + blinking eye (matches on-chain vibe) */
+/** Exactly 1111/4444 Pixelated (full body); all share first-deploy classic coil tail */
+function isPixelated(id) {
+  return (rng(id, 16) % 4444) < 1046;
+}
+
+/** Square token art — matches on-chain: classic coil + Smooth/Pixelated body */
 function tokenArtInner(id) {
   const bg = bgColor(id);
   const body = bodyColor(id);
   const iris = irisColor(id);
   const dx = rng(id, 11) % 5;
   const dy = rng(id, 12) % 3;
-  const tailStyle = rng(id, 13) % 3;
-  let tail;
-  if (tailStyle === 0) tail = "M28 50 C22 54 16 58 12 56 C8 54 10 50 14 51 C18 52 18 56 14 55";
-  else if (tailStyle === 1) tail = "M27 49 C20 55 14 59 10 57 C7 54 11 51 15 52 C19 53 19 57 15 56";
-  else tail = "M29 51 C23 56 17 60 13 58 C9 55 12 51 16 52 C20 53 20 58 16 57";
-
-  const ex = 54 + dx, ey = 41 - dy;
+  const ox = dx >> 1;
+  const pixel = isPixelated(id);
+  const classic = "M24 50 C18 48 10 46 9 50 C8 56 14 60 18 58 C22 56 20 50 14 51 C10 52 11 57 16 57 C20 57 22 53 18 52";
+  const tail = `<path d="${classic}" fill="none" stroke="${body}" stroke-width="2.6" stroke-linecap="round"/>`;
+  const dur = blinkDur(id);
+  const begin = blinkBegin(id);
+  const lw = pixel ? 3 : 2;
+  let critter;
+  if (pixel) {
+    const y0 = 38 - dy;
+    const y1 = 41 - dy;
+    critter = `
+  <rect x="${26 + ox}" y="${40 - dy}" width="24" height="18" fill="${body}"/>
+  <rect x="${28 + ox}" y="${38 - dy}" width="20" height="4" fill="${body}"/>
+  <rect x="${30 + ox}" y="${52 - dy}" width="16" height="4" fill="${body}"/>
+  <rect x="${44 + dx}" y="${34 - dy}" width="16" height="16" fill="${body}"/>
+  <rect x="${46 + dx}" y="${32 - dy}" width="12" height="4" fill="${body}"/>
+  <rect x="${50 + dx}" y="${y0}" width="10" height="8" fill="${iris}" stroke="#000" stroke-width="1">
+    <animate attributeName="height" values="8;1;8" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
+    <animate attributeName="y" values="${y0};${y1};${y0}" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="${53 + dx}" y="${40 - dy}" width="3" height="3" fill="#111"/>
+  <rect x="${55 + dx}" y="${39 - dy}" width="1" height="1" fill="#fff"/>`;
+  } else {
+    critter = `
+  <ellipse cx="${38 + ox}" cy="${48 - dy}" rx="13" ry="10" fill="${body}"/>
+  <ellipse cx="${51 + dx}" cy="${42 - dy}" rx="9" ry="8.5" fill="${body}"/>
+  <ellipse cx="${54 + dx}" cy="${41 - dy}" rx="5.2" ry="5.2" fill="${iris}" stroke="#000" stroke-width="1">
+    <animate attributeName="ry" values="5.2;0.5;5.2" keyTimes="0;0.08;0.16" dur="${dur}s" begin="${begin}s" repeatCount="indefinite"/>
+  </ellipse>
+  <circle cx="${55 + dx}" cy="${41 - dy}" r="2.2" fill="#111"/>
+  <circle cx="${56 + dx}" cy="${40 - dy}" r="0.8" fill="#fff"/>`;
+  }
   return `
   <rect width="72" height="72" fill="${bg}"/>
   <rect y="58" width="72" height="14" fill="#3d8c3a"/>
-  <path d="${tail}" fill="none" stroke="${body}" stroke-width="2.6" stroke-linecap="round"/>
-  <ellipse cx="${38 + (dx >> 1)}" cy="${48 - dy}" rx="13" ry="10" fill="${body}"/>
-  <ellipse cx="${51 + dx}" cy="${42 - dy}" rx="9" ry="8.5" fill="${body}"/>
-  <ellipse cx="${ex}" cy="${ey}" rx="5.2" ry="5.2" fill="${iris}" stroke="#000" stroke-width="1">
-    <animate attributeName="ry" values="5.2;0.5;5.2" keyTimes="0;0.08;0.16" dur="${blinkDur(id)}s" begin="${blinkBegin(id)}s" repeatCount="indefinite"/>
-  </ellipse>
-  <circle cx="${ex + 1}" cy="${ey}" r="2.2" fill="#111"/>
-  <circle cx="${ex + 2}" cy="${ey - 1}" r="0.8" fill="#fff"/>
-  <rect x="${28 + (dx >> 1)}" y="56" width="2" height="6" fill="${body}"/>
-  <rect x="${34 + (dx >> 1)}" y="56" width="2" height="6" fill="${body}"/>
-  <rect x="${44 + dx}" y="56" width="2" height="6" fill="${body}"/>
-  <rect x="${50 + dx}" y="56" width="2" height="6" fill="${body}"/>
+  ${tail}
+  ${critter}
+  <rect x="${28 + ox}" y="56" width="${lw}" height="6" fill="${body}"/>
+  <rect x="${34 + ox}" y="56" width="${lw}" height="6" fill="${body}"/>
+  <rect x="${44 + dx}" y="56" width="${lw}" height="6" fill="${body}"/>
+  <rect x="${50 + dx}" y="56" width="${lw}" height="6" fill="${body}"/>
   <rect x="${2 + (rng(id, 77) % 8)}" y="2" width="2" height="2" fill="#000" opacity="0.15"/>
 `;
 }
