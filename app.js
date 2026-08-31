@@ -628,7 +628,7 @@ function boot() {
     }
   });
 
-  const os = `https://opensea.io/assets/robinhood/${CONTRACT}/0`;
+  const os = "https://opensea.io/collection/camobitsonhood";
   ["openseaNav", "openseaHero", "openseaFoot"].forEach((id) => {
     const a = document.getElementById(id);
     if (a) a.href = os;
