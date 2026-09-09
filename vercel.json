@@ -11,6 +11,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/mint", "destination": "/mint.html" }
+    { "source": "/mint", "destination": "/mint.html" },
+    { "source": "/drop", "destination": "/drop.html" }
   ]
 }

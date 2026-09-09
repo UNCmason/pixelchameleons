@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="CamoBits community drop — 94 wallets across StonkBrokers, Spritehood, HOODIES & Coattail on Robinhood Chain." />
+  <meta property="og:title" content="CamoBits Community Drop" />
+  <meta property="og:description" content="Airdropped to active RH NFT traders & project wallets. Living banners on Robinhood Chain." />
+  <meta property="og:url" content="https://camobits.xyz/drop" />
+  <link rel="canonical" href="https://camobits.xyz/drop" />
+  <title>CamoBits Drop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=21" />
+  <style>
+    .drop-wrap { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .drop-wrap h1 { font-size: clamp(1.4rem, 5vw, 2rem); margin: 0 0 0.5rem; }
+    .drop-lead { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.25rem; }
+    .drop-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .drop-stats { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--muted); }
+    .drop-stats strong { color: var(--hood); }
+    .drop-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); }
+    .drop-list li { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--line); font-size: 0.72rem; }
+    .drop-list li:last-child { border-bottom: 0; }
+    .drop-list a { color: var(--hood); }
+    .drop-tags { color: #7a9084; }
+    .back { font-size: 0.8rem; color: var(--muted); }
+    .back:hover { color: var(--hood); }
+  </style>
+</head>
+<body>
+  <div class="bg-layers" aria-hidden="true">
+    <div class="bg-grad g1"></div>
+    <div class="bg-grad g2"></div>
+    <div class="bg-grad g3"></div>
+  </div>
+
+  <header class="nav">
+    <a class="logo" href="/">CAMO<span>BITS</span></a>
+    <nav class="nav-links">
+      <a class="back" href="/">← Home</a>
+      <a href="https://opensea.io/collection/camobitsonhood" target="_blank" rel="noopener">OpenSea</a>
+    </nav>
+  </header>
+
+  <main class="drop-wrap">
+    <h1>Community Drop</h1>
+    <p class="drop-lead">
+      CamoBits airdropped to active Robinhood Chain NFT traders &amp; project wallets
+      (StonkBrokers · Spritehood · HOODIES · Coattail). One each.
+    </p>
+    <div class="drop-actions">
+      <a class="btn primary" id="btnExplorer" href="#" target="_blank" rel="noopener">All transfers</a>
+      <a class="btn ghost" href="https://opensea.io/collection/camobitsonhood" target="_blank" rel="noopener">OpenSea</a>
+      <a class="btn ghost" id="btnFirstTx" href="#" target="_blank" rel="noopener">First tx</a>
+    </div>
+    <div class="drop-stats">
+      <span><strong id="dropCount">—</strong> wallets</span>
+      <span>Robinhood Chain</span>
+    </div>
+    <ul class="drop-list" id="dropList"></ul>
+  </main>
+
+  <script>
+    fetch("drop-data.json")
+      .then((r) => r.json())
+      .then((d) => {
+        document.getElementById("dropCount").textContent = d.count;
+        document.getElementById("btnExplorer").href = d.explorer;
+        document.getElementById("btnFirstTx").href = d.firstTx;
+        const ul = document.getElementById("dropList");
+        d.drops.forEach((x, i) => {
+          const li = document.createElement("li");
+          const left = document.createElement("div");
+          left.innerHTML =
+            "<div>" +
+            (i + 1) +
+            ". <a href=\"https://robinhoodchain.blockscout.com/address/" +
+            x.a +
+            "\" target=\"_blank\" rel=\"noopener\">" +
+            x.a.slice(0, 6) +
+            "…" +
+            x.a.slice(-4) +
+            "</a></div>" +
+            "<div class=\"drop-tags\">" +
+            (x.tags || []).join(" · ") +
+            "</div>";
+          const right = document.createElement("a");
+          right.href = "https://robinhoodchain.blockscout.com/tx/" + x.tx;
+          right.target = "_blank";
+          right.rel = "noopener";
+          right.textContent = "tx";
+          li.appendChild(left);
+          li.appendChild(right);
+          ul.appendChild(li);
+        });
+      })
+      .catch(() => {
+        document.getElementById("dropCount").textContent = "?";
+      });
+  </script>
+</body>
+</html>
