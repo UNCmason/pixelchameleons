@@ -522,7 +522,12 @@ async function refreshMintStats() {
     const elPH = document.getElementById("statPriceHero");
     if (elM) elM.textContent = `${minted} / ${MAX}`;
     if (elMH) elMH.textContent = minted.toString();
-    if (elPH) elPH.textContent = freeOpen ? "1 free" : "~¢30";
+    let paidEth = "paid";
+    try {
+      const paid = await c.paidMintPriceWei();
+      paidEth = (Number(paid) / 1e18).toFixed(5).replace(/0+$/, "").replace(/\.$/, "") + " ETH";
+    } catch (_) {}
+    if (elPH) elPH.textContent = freeOpen ? "1 free" : paidEth;
     const qtyEl = document.getElementById("qty");
     if (qtyEl) {
       if (eligible) {
@@ -536,9 +541,9 @@ async function refreshMintStats() {
     }
     const note = document.getElementById("mintNote");
     if (note) {
-      if (eligible) note.textContent = "1 free · then ~¢30 each";
-      else if (freeOpen) note.textContent = "More · ~¢30 each";
-      else note.textContent = "~¢30 each";
+      if (eligible) note.textContent = `1 free · then ${paidEth} each`;
+      else if (freeOpen) note.textContent = `More · ${paidEth} each`;
+      else note.textContent = `${paidEth} each`;
     }
     const mintBtn = document.getElementById("btnMint");
     if (mintBtn && !mintBtn.disabled) {
