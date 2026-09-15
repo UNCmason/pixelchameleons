@@ -419,6 +419,16 @@ img { max-width: 100%; display: block; }
   flex: 1 1 auto;
 }
 .mint-actions .btn.primary { flex: 1 1 8rem; }
+.mint-actions select {
+  width: 100%;
+  min-width: 7rem;
+  background: #0e1210;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+}
 .qty-lab {
   font-size: 0.8rem;
   color: var(--muted);

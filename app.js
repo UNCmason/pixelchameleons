@@ -19,9 +19,16 @@ const ABI = [
   "function ownerOf(uint256) view returns (address)",
   "function FREE_SUPPLY() view returns (uint256)",
   "function hasClaimedFreeMint(address) view returns (bool)",
+  "function burnForToken(uint256 tokenId)",
+  "function burnPayout(uint256 tokenId) view returns (uint256)",
+  "function rarityNameOf(uint256 tokenId) view returns (string)",
+  "function burnEnabled() view returns (bool)",
+  "function rewardToken() view returns (address)",
+  "function burnedCount() view returns (uint256)",
 ];
 const FREE_CAP_FALLBACK = 888;
 const TREASURY = "0x76B2c9Dfd8DCe539A6e009c0B5283c44e2D45421";
+let burnLive = false;
 
 let provider, signer, contract, ownedIds = [], walletAddr = "";
 
@@ -68,7 +75,10 @@ function disconnectWallet() {
   document.getElementById("labOpen")?.classList.add("hidden");
   document.getElementById("labLocked")?.classList.remove("hidden");
   setMintMsg("Disconnected", true);
+  setBurnMsg("");
+  fillBurnSelect();
   refreshMintStats();
+  refreshBurnStatus();
 }
 
 function rng(tokenId, salt) {
@@ -484,7 +494,9 @@ async function connectWallet() {
   showLabOpen();
   ownedIds = await fetchOwnedIds(walletAddr);
   fillOwnedSelect();
+  fillBurnSelect();
   await refreshMintStats();
+  await refreshBurnStatus();
 }
 
 async function trySilentConnect() {
@@ -561,18 +573,106 @@ function setMintMsg(t, ok) {
   el.textContent = t || "";
 }
 
+function setBurnMsg(t, ok) {
+  const el = document.getElementById("burnMsg");
+  if (!el) return;
+  el.className = "mint-msg " + (ok === true ? "ok" : ok === false ? "err" : "");
+  el.textContent = t || "";
+}
+
+async function refreshBurnStatus() {
+  const intro = document.getElementById("burnIntro");
+  const btn = document.getElementById("btnBurn");
+  const sel = document.getElementById("burnSelect");
+  try {
+    const { JsonRpcProvider, Contract } = await loadEthers();
+    const c = new Contract(CONTRACT, ABI, new JsonRpcProvider(RPC));
+    burnLive = false;
+    try {
+      burnLive = !!(await c.burnEnabled());
+    } catch (_) {
+      burnLive = false;
+    }
+    if (!burnLive) {
+      if (intro) intro.textContent = "Burn → $CAMO coming online soon (rarity-weighted redeem).";
+      if (btn) btn.disabled = true;
+      if (sel) {
+        sel.disabled = true;
+        if (!ownedIds.length) sel.innerHTML = "<option value=''>Soon</option>";
+      }
+      return;
+    }
+    let burned = "0";
+    try { burned = (await c.burnedCount()).toString(); } catch (_) {}
+    if (intro) intro.textContent = `Burn a CamoBit forever · claim $CAMO · ${burned} burned so far`;
+    fillBurnSelect();
+  } catch (_) {
+    if (intro) intro.textContent = "Burn → $CAMO";
+  }
+}
+
+function fillBurnSelect() {
+  const sel = document.getElementById("burnSelect");
+  const btn = document.getElementById("btnBurn");
+  if (!sel) return;
+  sel.innerHTML = "";
+  if (!burnLive) {
+    sel.disabled = true;
+    sel.innerHTML = "<option value=''>Soon</option>";
+    if (btn) btn.disabled = true;
+    return;
+  }
+  if (!walletAddr || !ownedIds.length) {
+    sel.disabled = true;
+    sel.innerHTML = `<option value="">${walletAddr ? "No CamoBits" : "Connect first"}</option>`;
+    if (btn) btn.disabled = true;
+    document.getElementById("burnQuote").textContent =
+      "Common 1k · Rare 5k · Epic 12k · Legendary 25k · Mythic 100k";
+    return;
+  }
+  sel.disabled = false;
+  for (const id of ownedIds) {
+    const opt = document.createElement("option");
+    opt.value = String(id);
+    opt.textContent = `#${id}`;
+    sel.appendChild(opt);
+  }
+  if (btn) btn.disabled = false;
+  updateBurnQuote();
+}
+
+async function updateBurnQuote() {
+  const quote = document.getElementById("burnQuote");
+  const sel = document.getElementById("burnSelect");
+  if (!quote || !sel || !sel.value || !contract || !burnLive) return;
+  try {
+    const id = BigInt(sel.value);
+    const [name, payout] = await Promise.all([
+      contract.rarityNameOf(id),
+      contract.burnPayout(id),
+    ]);
+    const amt = (Number(payout) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    quote.textContent = `#${sel.value} · ${name} · burn for ${amt} CAMO · permanent`;
+  } catch (_) {
+    quote.textContent = "Common 1k · Rare 5k · Epic 12k · Legendary 25k · Mythic 100k";
+  }
+}
+
 function boot() {
   initChameleonBg();
   initHero();
   buildFeatures();
   setWalletUI(false);
   refreshMintStats();
+  refreshBurnStatus();
   setInterval(refreshMintStats, 20000);
+  setInterval(refreshBurnStatus, 30000);
   trySilentConnect();
 
   document.getElementById("btnShuffle")?.addEventListener("click", buildFeatures);
   document.getElementById("ownedSelect")?.addEventListener("change", renderLab);
   document.getElementById("btnBannerPng")?.addEventListener("click", downloadPng);
+  document.getElementById("burnSelect")?.addEventListener("change", () => updateBurnQuote());
 
   const onConnect = async () => {
     if (walletAddr) return; // already connected — use Disconnect
@@ -621,8 +721,10 @@ function boot() {
       setMintMsg((eligible ? "Free mint secured" : `Minted ${qty}`) + " · tap Disconnect anytime", true);
       ownedIds = await fetchOwnedIds(walletAddr);
       fillOwnedSelect();
+      fillBurnSelect();
       showLabOpen();
       await refreshMintStats();
+      await refreshBurnStatus();
     } catch (e) {
       const rawMsg = e.shortMessage || e.reason || e.message || String(e);
       let msg = rawMsg;
@@ -630,6 +732,45 @@ function boot() {
       else if (/NoContracts/i.test(rawMsg)) msg = "Use a normal wallet";
       else if (/WrongPayment|insufficient/i.test(rawMsg)) msg = "Add a bit more ETH for mint + gas";
       setMintMsg(msg, false);
+    }
+  });
+
+  document.getElementById("btnBurn")?.addEventListener("click", async () => {
+    try {
+      if (!contract || !walletAddr) throw new Error("Tap to connect first");
+      if (!burnLive) throw new Error("Burn not live yet");
+      const sel = document.getElementById("burnSelect");
+      const idStr = sel?.value;
+      if (!idStr) throw new Error("Pick a CamoBit to burn");
+      const id = BigInt(idStr);
+      let name = "CamoBit";
+      let amt = "?";
+      try {
+        name = await contract.rarityNameOf(id);
+        amt = (Number(await contract.burnPayout(id)) / 1e18).toLocaleString();
+      } catch (_) {}
+      const ok = window.confirm(
+        `Burn #${idStr} (${name}) forever for ${amt} CAMO?\n\nThis cannot be undone.`
+      );
+      if (!ok) {
+        setBurnMsg("Cancelled", false);
+        return;
+      }
+      setBurnMsg("Confirm burn in wallet…");
+      const tx = await contract.burnForToken(id);
+      setBurnMsg("Burning…", true);
+      await tx.wait();
+      setBurnMsg(`Burned #${idStr} · claimed ${amt} CAMO`, true);
+      ownedIds = await fetchOwnedIds(walletAddr);
+      fillOwnedSelect();
+      fillBurnSelect();
+      await refreshBurnStatus();
+    } catch (e) {
+      const rawMsg = e.shortMessage || e.reason || e.message || String(e);
+      let msg = rawMsg;
+      if (/BurnClosed|function not found/i.test(rawMsg)) msg = "Burn not live on-chain yet";
+      else if (/NotOwnerOrApproved/i.test(rawMsg)) msg = "You don’t own that ID";
+      setBurnMsg(msg, false);
     }
   });
 
