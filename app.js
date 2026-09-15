@@ -594,7 +594,7 @@ async function refreshBurnStatus() {
       burnLive = false;
     }
     if (!burnLive) {
-      if (intro) intro.textContent = "Burn → $CAMO coming online soon (rarity-weighted redeem).";
+      if (intro) intro.textContent = "Burn your CamoBit to get CAMO. Going live soon.";
       if (btn) btn.disabled = true;
       if (sel) {
         sel.disabled = true;
@@ -604,10 +604,15 @@ async function refreshBurnStatus() {
     }
     let burned = "0";
     try { burned = (await c.burnedCount()).toString(); } catch (_) {}
-    if (intro) intro.textContent = `Burn a CamoBit forever · claim $CAMO · ${burned} burned so far`;
+    if (intro) {
+      intro.textContent =
+        burned === "0"
+          ? "Burn your CamoBit to get CAMO."
+          : `Burn your CamoBit to get CAMO. ${burned} burned so far.`;
+    }
     fillBurnSelect();
   } catch (_) {
-    if (intro) intro.textContent = "Burn → $CAMO";
+    if (intro) intro.textContent = "Burn your CamoBit to get CAMO.";
   }
 }
 
@@ -627,7 +632,7 @@ function fillBurnSelect() {
     sel.innerHTML = `<option value="">${walletAddr ? "No CamoBits" : "Connect first"}</option>`;
     if (btn) btn.disabled = true;
     document.getElementById("burnQuote").textContent =
-      "Common 1k · Rare 5k · Epic 12k · Legendary 25k · Mythic 100k";
+      "Rarer bits pay more CAMO. Burn is forever.";
     return;
   }
   sel.disabled = false;
@@ -652,9 +657,9 @@ async function updateBurnQuote() {
       contract.burnPayout(id),
     ]);
     const amt = (Number(payout) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 });
-    quote.textContent = `#${sel.value} · ${name} · burn for ${amt} CAMO · permanent`;
+    quote.textContent = `#${sel.value} is ${name} · you get ${amt} CAMO`;
   } catch (_) {
-    quote.textContent = "Common 1k · Rare 5k · Epic 12k · Legendary 25k · Mythic 100k";
+    quote.textContent = "Rarer bits pay more CAMO. Burn is forever.";
   }
 }
 
@@ -750,17 +755,17 @@ function boot() {
         amt = (Number(await contract.burnPayout(id)) / 1e18).toLocaleString();
       } catch (_) {}
       const ok = window.confirm(
-        `Burn #${idStr} (${name}) forever for ${amt} CAMO?\n\nThis cannot be undone.`
+        `Burn CamoBit #${idStr} (${name}) to get ${amt} CAMO?\n\nGone forever.`
       );
       if (!ok) {
         setBurnMsg("Cancelled", false);
         return;
       }
-      setBurnMsg("Confirm burn in wallet…");
+      setBurnMsg("Confirm in wallet…");
       const tx = await contract.burnForToken(id);
       setBurnMsg("Burning…", true);
       await tx.wait();
-      setBurnMsg(`Burned #${idStr} · claimed ${amt} CAMO`, true);
+      setBurnMsg(`Got ${amt} CAMO · #${idStr} burned`, true);
       ownedIds = await fetchOwnedIds(walletAddr);
       fillOwnedSelect();
       fillBurnSelect();
