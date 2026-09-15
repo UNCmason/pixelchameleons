@@ -68,7 +68,7 @@
     <h1>Mint CamoBits</h1>
     <p>
       4444 pure-code 1/1s built as <strong style="color:var(--text)">X banners</strong>.
-      Free mint through #887 — 1 per new wallet (EOA only). Then ~$0.30.
+      Free mint while free supply lasts — 1 per new wallet (EOA only). Then ~$0.20.
     </p>
 
     <div class="stat">Contract: <strong id="contractLabel">loading…</strong></div>
@@ -159,7 +159,7 @@
         $("qty").disabled = true;
       } else {
         $("price").textContent = (Number(price) / 1e18).toFixed(6) + " ETH";
-        $("priceUsd").textContent = "(~$0.30)";
+        $("priceUsd").textContent = "(~$0.20)";
         $("qty").max = "99";
         $("qty").disabled = false;
       }
